@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Войти{% endblock %}
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-6 p-3">
+    <div class="text-center">
+        <img class="mb-2" src="{% static 'images/logo-circle.svg' %}" alt=""
+             width="72"
+             height="57">
+      </div>
+      <h1 class="h3 mb-4 fw-normal text-center">Войти</h1>
+      <div class="card">
+        <div class="card-body">
+          {% include 'inc/forms/_form_nonfield_errors.html' %}
+
+          <form method="post"
+              {% if action_url %}
+                action="{% url action_url %}"
+              {% endif %}
+          >
+            {% csrf_token %}
+
+            {% include 'inc/forms/_form_fields.html' %}
+            <div class="col-md-12 text-center">
+              <button type="submit" class="btn btn-primary">
+                Войти
+              </button>
+              <a href="{% url 'users:password_reset' %}" class="btn btn-link">
+                Забыли пароль?
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

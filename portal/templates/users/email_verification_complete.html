@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Успешное подтверждение email{% endblock %}
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-8 p-5">
+      <div class="text-center">
+        <img class="mb-2" src="{% static 'images/logo-circle.svg' %}" alt=""
+             width="72"
+             height="72">
+      </div>
+      <h1 class="h3 mb-4 fw-normal text-center">Готово</h1>
+      <div class="card">
+        <div class="card-body">
+          <p>Почта подтверждена. Можете пользоваться сервисом.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

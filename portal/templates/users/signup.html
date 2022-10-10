@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Зарегистрироваться{% endblock %}
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-8 p-5">
+      <div class="text-center">
+        <img class="mb-2" src="{% static 'images/logo-circle.svg' %}" alt=""
+             width="72"
+             height="72">
+      </div>
+      <h1 class="h3 mb-4 fw-normal text-center">Регистрация</h1>
+      <div class="card">
+        <div class="card-body">
+          {% include 'inc/forms/_form_nonfield_errors.html' %}
+
+          <form method="post" action="{% url 'users:signup' %}">
+            {% csrf_token %}
+
+            {% include 'inc/forms/_form_fields.html' %}
+            <div class="col-md-12 text-center">
+              <button type="submit" class="btn btn-primary">
+                Зарегистрироваться
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+
+
