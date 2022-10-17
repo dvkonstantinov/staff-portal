@@ -3,5 +3,5 @@
   Please click on the link to confirm your registration,
   {{ user }}
   {{ token }}
-  {{ protocol }}://{{ domain }}{% url 'users:verify_email' uidb64=uid token=token%}
+  {{ protocol }}://{{ domain }}{% url 'authapp:email_verification_done' uidb64=uid token=token%}
 {% endautoescape %}

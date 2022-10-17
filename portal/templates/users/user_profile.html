@@ -1,0 +1,709 @@
+{% extends "base.html" %}
+{% load static %}
+{% load user_filters %}
+{% block title %}Профиль {{ user.first_name }} {{ user.last_name }}{% endblock %}
+{% block content %}
+
+  <div class="pagetitle">
+    <h1>{{ user.first_name }} {{ user.last_name }}</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+        <li class="breadcrumb-item"><a href="
+{% url 'users:user_list' %}">Пользователи</a></li>
+        <li class="breadcrumb-item active">
+          {{ user.first_name }} {{ user.last_name }}</li>
+      </ol>
+    </nav>
+  </div>
+
+  <section class="section profile">
+    <div class="row">
+      <div class="col-xl-4">
+
+        <div class="card">
+          <div
+              class="card-body profile-card pt-4 d-flex flex-column align-items-center">
+
+            <img src="{{ user.profile.thumbnail.url }}" alt="Profile"
+                 class="rounded-circle">
+            <h2>{{ user.first_name }} {{ user.last_name }}</h2>
+            {% if user.profile.job %}
+              <h3>{{ user.profile.job }}</h3>
+            {% endif %}
+            <div class="social-links mt-2">
+              <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
+              <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
+              <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
+              <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="col-xl-8">
+
+        <div class="card">
+          <div class="card-body pt-3">
+            <ul class="nav nav-tabs nav-tabs-bordered">
+
+              <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="tab"
+                        data-bs-target="#profile-overview">Профиль
+                </button>
+              </li>
+              {% if request.user.id == user.id %}
+                <li class="nav-item">
+                  <button class="nav-link" data-bs-toggle="tab"
+                          data-bs-target="#profile-edit">Редактировать
+                  </button>
+                </li>
+
+                <li class="nav-item">
+                  <button class="nav-link" data-bs-toggle="tab"
+                          data-bs-target="#profile-settings">Настройки
+                  </button>
+                </li>
+
+                <li class="nav-item">
+                  <button class="nav-link" data-bs-toggle="tab"
+                          data-bs-target="#profile-change-password">Изменить
+                    пароль
+                  </button>
+                </li>
+              {% endif %}
+            </ul>
+            <div class="tab-content pt-2">
+
+              <div class="tab-pane fade show active profile-overview"
+                   id="profile-overview">
+
+                {% if user.profile.about %}
+                  <h5 class="card-title">Обо мне</h5>
+                  <p class="small fst-italic">{{ user.profile.about }}</p>
+                {% endif %}
+
+                <h5 class="card-title">Подробная информация</h5>
+                <div class="row">
+                  <div class="col-lg-3 col-md-4 label ">Имя</div>
+                  <div class="col-lg-9 col-md-8">{{ user.first_name }}</div>
+                </div>
+
+                <div class="row">
+                  <div class="col-lg-3 col-md-4 label">Фамилия</div>
+                  <div class="col-lg-9 col-md-8">{{ user.last_name }}
+                  </div>
+                </div>
+
+                {% if user.patronymic %}
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Отчество</div>
+                    <div class="col-lg-9 col-md-8">{{ user.patronymic }}</div>
+                  </div>
+                {% endif %}
+
+                <div class="row">
+                  <div class="col-lg-3 col-md-4 label">Рабочий Email</div>
+                  <div class="col-lg-9 col-md-8">{{ user.email }}
+                  </div>
+                </div>
+
+                {% if user.profile.job %}
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Должность</div>
+                    <div class="col-lg-9 col-md-8">{{ user.profile.job }}</div>
+                  </div>
+                {% endif %}
+
+                {% if user.profile.personal_email %}
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Личный Email</div>
+                    <div
+                        class="col-lg-9 col-md-8">{{ user.profile.personal_email }}</div>
+                  </div>
+                {% endif %}
+
+                {% if user.profile.birthday %}
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Дата рождения</div>
+                    <div
+                        class="col-lg-9 col-md-8">{{ user.profile.birthday }}</div>
+                  </div>
+                {% endif %}
+
+                {% if user.profile.phone %}
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Телефон</div>
+                    <div
+                        class="col-lg-9 col-md-8">{{ user.profile.phone }}</div>
+                  </div>
+                {% endif %}
+
+                {% if user.profile.telegram %}
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Telegram</div>
+                    <div
+                        class="col-lg-9 col-md-8">{{ user.profile.telegram }}</div>
+                  </div>
+                {% endif %}
+
+              </div>
+              {% if request.user.id == user.id %}
+                <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
+                  <div class="row mb-3">
+                    <span
+                        class="col-md-4 col-lg-3 col-form-label">Фото
+                      профиля</span>
+                    <div class="col-md-8 col-lg-9">
+                      <img src="{{ user.profile.thumbnail.url }}" alt="Фото
+                    профиля">
+                      <div class="pt-2">
+                        <button class="btn btn-primary btn-sm"
+                                title="Загрузить новое фото профиля"><i
+                            class="bi bi-upload" data-bs-toggle="modal"
+                            data-bs-target="#avatarModal1"></i></button>
+                        <button class="btn btn-danger btn-sm"
+                                title="Удалить фото профиля"><i
+                            class="bi bi-trash" data-bs-toggle="modal"
+                            data-bs-target="#avatarRemove"></i></button>
+                      </div>
+                    </div>
+                  </div>
+                  <form method="post"
+                        action="
+{% url 'users:user_profile' user_id=user.id %}">
+                    {% csrf_token %}
+                    {% for field in form %}
+                      <div class="row mb-3"
+                          {% if field.field.required %}
+                           aria-required="true"
+                          {% else %}
+                           aria-required="false"
+                          {% endif %}
+                      >
+                        <label for="{{ field.id_for_label }}"
+                               class="col-md-4 col-lg-3 col-form-label">
+                          {{ field.label }}
+                          {% if field.field.required %}
+                            <span class="required text-danger">*</span>
+                          {% endif %}
+                        </label>
+                        <div class="col-md-8 col-lg-9">
+                          {{ field|addclass:'form-control' }}
+                        </div>
+                        {% include 'inc/forms/_form_field_errors.html' %}
+                        {% if field.help_text %}
+                          <small id="{{ field.id_for_label }}-help" class="form-text
+                    text-muted">
+                            {{ field.help_text|safe }}
+                          </small>
+                        {% endif %}
+
+                      </div>
+                    {% endfor %}
+                    {% for field in form2 %}
+                      <div class="row mb-3"
+                          {% if field.field.required %}
+                           aria-required="true"
+                          {% else %}
+                           aria-required="false"
+                          {% endif %}
+                      >
+                        <label for="{{ field.id_for_label }}"
+                               class="col-md-4 col-lg-3 col-form-label">
+                          {{ field.label }}
+                          {% if field.field.required %}
+                            <span class="required text-danger">*</span>
+                          {% endif %}
+                        </label>
+                        <div class="col-md-8 col-lg-9">
+                          {{ field|addclass:'form-control' }}
+                        </div>
+                        {% include 'inc/forms/_form_field_errors.html' %}
+                        {% if field.help_text %}
+                          <small id="{{ field.id_for_label }}-help" class="form-text
+                    text-muted">
+                            {{ field.help_text|safe }}
+                          </small>
+                        {% endif %}
+
+                      </div>
+                    {% endfor %}
+                    <div class="text-center">
+                      <button type="submit" class="btn btn-primary">Сохранить
+                      </button>
+                    </div>
+                  </form>
+
+                </div>
+
+
+                <div class="tab-pane fade pt-3" id="profile-settings">
+
+                  <!-- Settings Form -->
+                  <form>
+
+                    <div class="row mb-3">
+                      <label for="fullName"
+                             class="col-md-4 col-lg-3 col-form-label">Email
+                        Notifications</label>
+                      <div class="col-md-8 col-lg-9">
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox"
+                                 id="changesMade" checked>
+                          <label class="form-check-label" for="changesMade">
+                            Changes made to your account
+                          </label>
+                        </div>
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox"
+                                 id="newProducts" checked>
+                          <label class="form-check-label" for="newProducts">
+                            Information on new products and services
+                          </label>
+                        </div>
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox"
+                                 id="proOffers">
+                          <label class="form-check-label" for="proOffers">
+                            Marketing and promo offers
+                          </label>
+                        </div>
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox"
+                                 id="securityNotify" checked disabled>
+                          <label class="form-check-label" for="securityNotify">
+                            Security alerts
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="text-center">
+                      <button type="submit" class="btn btn-primary">Save
+                        Changes
+                      </button>
+                    </div>
+                  </form><!-- End settings Form -->
+
+                </div>
+
+                <div class="tab-pane fade pt-3" id="profile-change-password">
+                  <!-- Change Password Form -->
+                  <form method="post" id="password-change-form">
+                    {% csrf_token %}
+                    {% for field in password_change_form %}
+                      <div class="row mb-3"
+                          {% if field.field.required %}
+                           aria-required="true"
+                          {% else %}
+                           aria-required="false"
+                          {% endif %}
+                      >
+                        <label for="{{ field.id_for_label }}"
+                               class="col-md-5 col-lg-4 col-form-label">
+                          {{ field.label }}
+                          {% if field.field.required %}
+                            <span class="required text-danger">*</span>
+                          {% endif %}
+                        </label>
+                        <div class="col-md-7 col-lg-8">
+                          {{ field|addclass:'form-control' }}
+                        </div>
+                        {% include 'inc/forms/_form_field_errors.html' %}
+                        {% if field.help_text %}
+                          <small id="{{ field.id_for_label }}-help" class="form-text
+                    text-muted">
+                            {{ field.help_text|safe }}
+                          </small>
+                        {% endif %}
+                      </div>
+                    {% endfor %}
+                    <div class="text-center">
+                      <button type="submit" class="btn btn-primary">Изменить
+                        пароль
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+
+    </div>
+    {% if request.user.id == user.id %}
+      <div class="modal fade" id="avatarModal1" tabindex="-1"
+           aria-labelledby="avatarModal1Title" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-fullscreen-md-down">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="avatarModal1Title">Добавление
+                фото</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"
+                      aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <p>Перетащите фотографию в область ниже, либо загрузите,
+                используя
+                кнопку</p>
+              <div id="drag-and-drop-zone" class="uploader p-5 border-primary">
+                <h3 class="mb-5 mt-5 text-muted">Перетащите фото в область</h3>
+                <div class="btn btn-primary btn-block mb-5">
+                  <span>Открыть файл вручную</span>
+                  <input type="file" title='Открыть файл'>
+                </div>
+              </div>
+              <div class="alert alert-success mt-3 d-none"
+                   id="avatarInputErrorContainer" role="alert">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary"
+                      data-bs-dismiss="modal">Закрыть
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="modal fade" id="avatarModal2" tabindex="-1"
+           aria-labelledby="avatarModal2Title" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-fullscreen-md-down">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="avatarModal2Title">Обрезка
+                фотографии</h1>
+
+              <button type="button" class="btn-close" data-bs-dismiss="modal"
+                      aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <p>Вы выбрали эту фотографию. Обрежьте ее и загрузите</p>
+              <div class="container-fluid">
+                <div class="row">
+                  <div class="col-xl-8 col-sm-12  p-0">
+                    <h5>Ваше фото</h5>
+                    <div class="img-container text-center"
+                         id="imagepreview"></div>
+                  </div>
+                  <div class="col-xl-4 ps-3 col-sm-12 pe-0">
+                    <h5>Результат</h5>
+                    <div class="result-image" id="#imageResult"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary"
+                      data-bs-target="#avatarModal1"
+                      data-bs-toggle="modal">Назад
+              </button>
+              <button type="button" id="avatarUploadButton"
+                      class="btn btn-primary" data-bs-target="#avatarModal3"
+                      data-bs-toggle="modal">Загрузить
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" id="avatarModal3" tabindex="-1"
+           aria-labelledby="avatarModal3Title" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-fullscreen-md-down">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="avatarModal3Title">Загрузка
+                фото</h1>
+
+              <button type="button" class="btn-close" data-bs-dismiss="modal"
+                      aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+              <div class="d-none" id="avatar-loading-process">
+                <h5>Загрузка фото...</h5>
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden hide">Загрузка...</span>
+                </div>
+              </div>
+              <div class="d-none" id="avatar-loading-complete">
+                <h5>Успешно!</h5>
+                <p>Новая фотография профиля загружена. Перезагрузите страницу
+                  чтобы внеслись изменения.</p>
+              </div>
+              <div class="d-none" id="avatar-loading-error">
+                <h5>Что-то пошло не так</h5>
+                <p>В процессе загрузки возникла ошибка, попробуйте позднее.</p>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary"
+                      data-bs-dismiss="modal">Закрыть
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal fade" id="avatarRemove" tabindex="-1"
+           aria-labelledby="avatarRemoveTitle" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="avatarRemoveTitle">Удаление
+                фото</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"
+                      aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <p>Вы хотите удалить фото профиля?</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary"
+                      data-bs-dismiss="modal">Нет
+              </button>
+              <button type="button" class="btn btn-primary"
+                      id="avatarRemoveButton">Да
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      </section>
+    {% endif %}
+{% endblock %}
+
+{% block page_scripts %}
+  <script>
+      $("#drop-area").dmUploader({
+          url: '/path/to/backend/upload.asp',
+          queue: false,
+          multiple: false,
+          extFilter: ["jpg", "jpeg", "png", "gif"],
+
+          onInit: function () {
+              console.log('Callback: Plugin initialized');
+          }
+
+          // ... More callbacks
+      });
+
+      jQuery(document).ready(function ($) {
+          let password_change_form = $('#password-change-form')
+          password_change_form.submit(function () {
+              $.ajax({
+                  data: $(this).serialize(),
+                  type: $(this).attr('method'),
+                  url: "{% url 'authapp:password_change' %}",
+                  dataType: "json",
+                  success: function (response) {
+                      console.log(response)
+                      ChangePassFormSuccess(password_change_form)
+                      password_change_form[0].reset()
+                  },
+                  error: function (response) {
+                      ChangePassFormError(response, password_change_form)
+                  }
+              });
+              return false;
+          });
+
+
+          const avatarModal1 = new bootstrap.Modal('#avatarModal1', {})
+          const avatarModal2 = new bootstrap.Modal('#avatarModal2', {})
+          $("#avatarModal2").on('shown.bs.modal', function () {
+
+              let image = document.getElementById('startImage')
+              cropper = new Cropper(image, {
+                  aspectRatio: 1 / 1,
+                  preview: '.result-image',
+              });
+          });
+
+          $("#avatarUploadButton").click(function () {
+              settings = {
+                  width: 200,
+                  height: 200,
+                  fillColor: '#fff',
+                  imageSmoothingEnabled: true,
+                  imageSmoothingQuality: 'medium',
+              };
+              let canvas = cropper.getCroppedCanvas(settings);
+              let fullimg = document.getElementById('startImage')
+              let fullimgsrc = fullimg.src
+              let fullimgname = fullimg.alt
+              let croppedimgsrc = canvas.toDataURL('image/jpeg', 0.5);
+              let croppedimgname = 'thumb-' + fullimgname;
+              const formData = new FormData();
+              formData.append('photo', fullimgsrc);
+              formData.append('photo-name', fullimgname);
+              formData.append('thumbnail', croppedimgsrc);
+              formData.append('thumbnail-name', croppedimgname);
+              formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+              console.log(formData.get('csrfmiddlewaretoken'));
+              $('#avatar-loading-process').removeClass('d-none');
+              let ajax_settings = {
+                  url: '{% url 'users:upload_avatar' %}',
+                  method: "post",
+                  processData: false,
+                  contentType: false,
+                  data: formData,
+                  success: function () {
+                      $('#avatar-loading-process').addClass('d-none');
+                      $('#avatar-loading-complete').removeClass('d-none');
+                      console.log('Upload success');
+                  },
+                  error: function () {
+                      $('#avatar-loading-process').addClass('d-none');
+                      $('#avatar-loading-error').removeClass('d-none');
+                      console.log('Upload error');
+                  }
+              }
+              $.ajax(ajax_settings);
+          });
+          $('#drag-and-drop-zone').dmUploader({ //
+              multiple: false,
+              auto: false,
+              queue: false,
+              maxFileSize: 3000000, // 3 Megs
+              allowedTypes: "image/*",
+              extFilter: ["jpg", "jpeg", "png"],
+
+              onDragEnter: function () {
+                  this.addClass('active border-secondary');
+                  this.removeClass('border-primary')
+                  console.log('onDragEnter');
+              },
+              onDragLeave: function () {
+                  this.removeClass('active border-secondary');
+                  this.addClass('border-primary')
+                  console.log('onDragLeave');
+
+              },
+              // onInit: function () {
+              //   console.log('onInit')
+              // },
+              onNewFile: function (id, file) {
+                  console.log('onNewFile');
+                  let preview = document.getElementById('imagepreview');
+                  if (file) {
+                      let reader = new FileReader();
+                      reader.onload = e => {
+                          let imgData = e.target.result;
+                          let imgName = file.name;
+                          preview.src = reader.result;
+                          let img = document.createElement('img');
+                          img.id = 'startImage';
+                          img.src = imgData;
+                          img.alt = imgName;
+                          preview.innerHTML = '';
+                          preview.appendChild(img);
+                      };
+                      reader.readAsDataURL(file);
+                  }
+                  avatarModal2.toggle();
+                  avatarModal1.toggle();
+
+              },
+              onFileSizeError: function (file) {
+                  let text = 'Размер файла должен быть менее 3 Мбайт'
+                  avatarTextInputter(text)
+              },
+              onFileTypeError: function (file) {
+                  let text = 'Неверный тип файла. Нужна фотография'
+                  avatarTextInputter(text)
+              },
+              onFileExtError: function (file) {
+                  let text = 'Допускаются фотографии с расширением jpg, ' +
+                      'jpeg, ' + 'png'
+                  avatarTextInputter(text)
+              }
+          });
+
+          $('#avatarRemoveButton').click(function () {
+              let formDataRemoveAva = new FormData()
+              formDataRemoveAva.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+              $.ajax({
+                  data: formDataRemoveAva,
+                  method: "post",
+                  processData: false,
+                  contentType: false,
+                  url: "{% url 'users:remove_avatar' %}",
+                  dataType: false,
+                  success: function (response) {
+                      console.log(response)
+                      let modal = $('#avatarRemove')
+                      modal.find('.modal-body').html('<p>Фото успешно удалено. ' +
+                          'Для вступления изменений перезагрузите страницу</p>')
+                      modal.find('.modal-footer').html(
+                          '<button type="button" class="btn btn-primary" ' +
+                          'data-bs-dismiss="modal">Закрыть</button>'
+                      )
+                  },
+                  error: function (response) {
+                      let modal = $('#avatarRemove')
+                      modal.find('.modal-body').html('<p>Произошла ошибка' +
+                          '. Попробуйте позднее</p>')
+                      modal.find('.modal-footer').html(
+                          '<button type="button" class="btn btn-primary" ' +
+                          'data-bs-dismiss="modal">Закрыть</button>'
+                      )
+                  }
+              });
+              return false;
+          });
+      });
+
+      function getCookie(name) {
+          let cookieValue = null;
+          if (document.cookie && document.cookie !== '') {
+              const cookies = document.cookie.split(';');
+              for (let i = 0; i < cookies.length; i++) {
+                  const cookie = cookies[i].trim();
+                  // Does this cookie string begin with the name we want?
+                  if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                      cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                      break;
+                  }
+              }
+          }
+          return cookieValue;
+      }
+
+      const csrftoken = getCookie('csrftoken');
+
+
+      function avatarTextInputter(text) {
+          let container = document.getElementById('avatarInputErrorContainer');
+          container.innerHTML = text;
+          $(container).removeClass('d-none')
+      }
+
+
+      function ChangePassFormError(response, form) {
+          form.find('div.invalid-feedback').remove()
+          form.find('input').keyup(function () {
+              $(this).next('div.invalid-feedback').remove()
+          })
+          let form_errors = response['responseJSON']['errors']
+          for (let key in form_errors) {
+              form.find('input[name=' + key + ']').after(
+                  '<div class="invalid-feedback">' + form_errors[key] + '</div>'
+              )
+          }
+      }
+
+      function ChangePassFormSuccess(form) {
+          let btn = form.find('button')
+          btn.toggleClass('btn-primary btn-success').html('Пароль изменен <i class="bi bi-check-circle"></i>')
+          setTimeout(function () {
+              btn.toggleClass('btn-primary btn-success').html('Изменить пароль')
+          }, 5000);
+      }
+
+  </script>
+{% endblock %}

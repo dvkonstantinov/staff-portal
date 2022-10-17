@@ -1,71 +1,70 @@
-from django.contrib.auth import get_user_model, login
+from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
-from django.contrib.auth.views import PasswordChangeView, PasswordResetView
-from django.core.mail import EmailMessage
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import render
-from django.template.loader import render_to_string
-from django.urls import reverse_lazy
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-from django.views.generic import CreateView
 
-from .forms import UserRegistrationForm, CustomPasswordChangeForm, \
-    CustomPasswordResetForm
+from authapp.forms import CustomPasswordChangeForm
+from .forms import UserProfileForm, UserForm
+from .models import Profile
+from .utils import image_fetcher
 
 User = get_user_model()
 
 account_activation_token = default_token_generator
 
+def user_list(request):
+    pass
 
-class SignUpView(CreateView):
-    form_class = UserRegistrationForm
-    success_url = reverse_lazy('main:main')
-    template_name = 'users/signup.html'
+def user_profile(request, user_id):
+    print(request)
+    user = User.objects.get(pk=user_id)
+    user_form = UserForm(request.POST or None, instance=user)
+    profile_form = UserProfileForm(request.POST or None,
+                                   instance=user.profile)
+    password_change_form = CustomPasswordChangeForm(user=user)
+    context = {
+        'user': user,
+    }
+    if request.user.id == user_id:
+        context['form'] = user_form
+        context['form2'] = profile_form
+        context['password_change_form'] = password_change_form
 
-    def form_valid(self, form):
-        super(SignUpView, self).form_valid(form)
-        user = User.objects.get(email=form.cleaned_data['email'])
-        mail_subject = 'Activate your blog account.'
-        message = render_to_string(
-            'users/messages/email_verification_message.txt', {
-                'user': user,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': account_activation_token.make_token(user),
-            })
-        to_email = form.cleaned_data.get('email')
-        email = EmailMessage(
-            mail_subject, message, to=[to_email]
-        )
-        email.send()
-        return HttpResponseRedirect(self.get_success_url())
+    if request.method == 'POST':
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+
+    return render(request, 'users/user_profile.html', context=context)
 
 
-def verify_email(request, uidb64, token):
-    print(uidb64)
-    print(token)
-    print(request.scheme)
-    try:
-        uid = urlsafe_base64_decode(uidb64).decode()
-        user = User.objects.get(pk=uid)
-    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
-        user = None
-    if user is not None and account_activation_token.check_token(user, token):
-        user.is_active = True
-        user.save()
-        login(request, user)
-        return render(request, 'users/email_verification_complete.html')
+def upload_avatar(request):
+    if request.method == 'POST':
+        photo_b64 = request.POST['photo']
+        photo_name = request.POST['photo-name']
+        thumbnail_b64 = request.POST['thumbnail']
+        thumbnail_name = request.POST['thumbnail-name']
+        photo = image_fetcher(photo_b64)
+        thumbnail = image_fetcher(thumbnail_b64)
+        user = User(id=request.user.id)
+        user.profile.photo.save(photo_name, photo, save=True)
+        user.profile.thumbnail.save(thumbnail_name, thumbnail, save=True)
+        return JsonResponse({'message': 'success'}, status=200)
     else:
-        return render(request, 'users/email_verification_error.html')
+        return JsonResponse({'errors': 'method not allowed'}, status=400)
 
 
-class CustomPasswordChangeView(PasswordChangeView):
-    form_class = CustomPasswordChangeForm
-    success_url = reverse_lazy('users:password_change_done')
-    template_name = 'users/password_change_form.html'
-
-
-class CustomPasswordResetView(PasswordResetView):
-    form_class = CustomPasswordResetForm
-    success_url = reverse_lazy('users:password_reset_done')
-    template_name = 'users/password_reset_form.html'
+def remove_avatar(request):
+    if request.method == 'POST':
+        # profile = Profile(user=request.user)
+        default_photo = Profile._meta.get_field('photo').get_default()
+        default_thumb = Profile._meta.get_field('thumbnail').get_default()
+        print(default_photo)
+        print(default_thumb)
+        profile = Profile.objects.get(user=request.user)
+        profile.photo = default_photo
+        profile.thumbnail = default_thumb
+        profile.save()
+        return JsonResponse({'message': 'success'}, status=200)
+    else:
+        return JsonResponse({'errors': 'method not allowed'}, status=400)

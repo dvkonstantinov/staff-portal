@@ -1,7 +1,10 @@
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
-from django.contrib.auth.models import AbstractUser, PermissionsMixin
+from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from portal.settings import AUTH_USER_MODEL
@@ -75,9 +78,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_admin = models.BooleanField(_('Права администратора'), default=False)
     is_active = models.BooleanField(_('Активный пользователь'), default=True)
     last_activity = models.DateTimeField(blank=True, null=True)
-
+    date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name', 'patronymic']
+    REQUIRED_FIELDS = ['first_name', 'last_name']
 
     objects = CustomUserManager()
 
@@ -95,3 +98,40 @@ class EmailConfirmation(models.Model):
                              on_delete=models.CASCADE,
                              verbose_name='Пользователь')
     verified = models.BooleanField(verbose_name="Подтвержден", default=False)
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(AUTH_USER_MODEL, on_delete=models.CASCADE,
+                                verbose_name='Пользователь',
+                                related_name='profile')
+    photo = models.ImageField(upload_to='profile_photos/full/',
+                              default='profile_photos/full/default.jpg',
+                              verbose_name='Фото')
+    thumbnail = models.ImageField(upload_to='profile_photos/thumbs/',
+                                  default='profile_photos/thumbs/default.jpg',
+                                  verbose_name='Миниатюра')
+    job = models.CharField(max_length=300, verbose_name='Должность',
+                           blank=True, null=True)
+    about = models.TextField(verbose_name='Обо мне', blank=True, null=True)
+    personal_email = models.EmailField(verbose_name='Личный email', blank=True,
+                                       null=True)
+    birthday = models.DateField(verbose_name='Дата рождения', blank=True,
+                                null=True)
+    phone = models.CharField(max_length=50, verbose_name='Телефон', blank=True,
+                             null=True)
+    telegram = models.CharField(max_length=150, verbose_name='Телеграм',
+                                blank=True, null=True)
+
+    @receiver(post_save, sender=User)
+    def create_user_profile(sender, instance, created, **kwargs):
+        if created:
+            Profile.objects.create(user=instance)
+
+    @receiver(post_save, sender=User)
+    def save_user_profile(sender, instance, **kwargs):
+        instance.profile.save()
+
+    class Meta:
+        ordering = ['id']
+        verbose_name = 'Доп. информация'
+        verbose_name_plural = 'Доп. информация'

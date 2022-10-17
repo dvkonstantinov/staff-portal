@@ -1,22 +1,11 @@
-{% extends "base.html" %}
+{% extends "inc/forms/_unregistered_user.html" %}
 {% load static %}
 {% block title %}Ошибка подтверждение email{% endblock %}
-{% block content %}
-  <div class="row justify-content-center">
-    <div class="col-md-8 p-5">
-      <div class="text-center">
-        <img class="mb-2" src="{% static 'images/logo-circle.svg' %}" alt=""
-             width="72"
-             height="72">
-      </div>
-      <h1 class="h3 mb-4 fw-normal text-center">Произошла ошибка</h1>
-      <div class="card">
-        <div class="card-body">
-          <p>Что-то пошло не так. Ссылкой уже воспользовались, либо она
-            устарела. Попробуйте подтвердить Ваш email еще раз.
-          </p>
-        </div>
-      </div>
-    </div>
+{% block page_title %}Ошибка подтверждения{% endblock %}
+{% block page_descr %}{% endblock %}
+{% block unreg_content %}
+  <div class="col-12">
+    <p>Что-то пошло не так. Ссылкой уже воспользовались, либо она
+      устарела. Попробуйте подтвердить Ваш email еще раз.</p>
   </div>
 {% endblock %}

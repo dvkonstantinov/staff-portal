@@ -9,6 +9,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+SITE_ID = 1
+
+SITE_DOMAIN = '127.0.0.1:8000'
+SITE_PROTOCOL = 'http'
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -17,6 +21,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    'django_cleanup.apps.CleanupConfig',
+    'authapp',
     'users',
     'core',
     'main'
@@ -90,14 +96,12 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 # STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-MEDIA_URL = '/media/'
+MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
-
-SITE_ID = 1
 
 LOGIN_REDIRECT_URL = '/'
