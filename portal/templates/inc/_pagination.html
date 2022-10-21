@@ -1,0 +1,152 @@
+{% load user_tags %}
+{% if page_obj.has_other_pages %}
+
+
+
+<nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center pagination-sm">
+      <li class="page-item {% if not page_obj.has_previous %} disabled{% endif %}">
+        <a class="page-link"
+            {% if page_obj.has_previous %}
+           href="?{% param_replace page=1 %}"
+            {% endif %}
+           {% if not page_obj.has_previous %}aria-disabled="true"{% endif %}>
+          «
+        </a>
+      </li>
+      <li class="page-item {% if not page_obj.has_previous %} disabled{% endif %}">
+        <a class="page-link"
+            {% if page_obj.has_previous %}
+           href="?{% param_replace page=page_obj.previous_page_number %}"
+            {% endif %}
+           tabindex="-1"
+           {% if not page_obj.has_previous %}aria-disabled="true"{% endif %}>
+          ‹
+        </a>
+      </li>
+      {% for i in page_obj.paginator.page_range %}
+        {% if i <= page_obj.number|add:2 and i >= page_obj.number|add:-2 %}
+          {% if page_obj.number == i %}
+            <li class="page-item active">
+              <span class="page-link">{{ i }}</span>
+            </li>
+          {% else %}
+            <li class="page-item">
+              <a class="page-link"
+                 href="?{% param_replace page=i %}">{{ i }}
+              </a>
+            </li>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+      <li class="page-item {% if not page_obj.has_next %} disabled{% endif %}">
+        <a class="page-link"
+            {% if page_obj.has_next %}
+           href="?{% param_replace page=page_obj.next_page_number %}"
+            {% endif %}
+           tabindex="-1"
+           {% if not page_obj.has_next %}aria-disabled="true"{% endif %}>
+          ›
+        </a>
+      </li>
+      <li class="page-item {% if not page_obj.has_next %} disabled{% endif %}">
+        <a class="page-link"
+            {% if page_obj.has_next %}
+           href="?{% param_replace page=page_obj.paginator.num_pages %}"
+            {% endif %}
+           tabindex="-1"
+           {% if not page_obj.has_next %}aria-disabled="true"{% endif %}>
+          »
+        </a>
+      </li>
+    </ul>
+  </nav>
+{% endif %}
+
+
+
+
+
+
+
+
+{#  <nav aria-label="Page navigation example">#}
+{#    <ul class="pagination justify-content-center pagination-sm">#}
+{#      <li class="page-item {% if not page_obj.has_previous %} disabled{% endif %}">#}
+{#        <a class="page-link"#}
+{#            {% if page_obj.has_previous %}#}
+{#              {% if '?' in request.get_full_path %}#}
+{#           href="{{ request.get_full_path }}&page=1"#}
+{#              {% else %}#}
+{#           href="{{ request.get_full_path }}?page=1"#}
+{#              {% endif %}#}
+{#            {% endif %}#}
+{##}
+{#           {% if not page_obj.has_previous %}aria-disabled="true"{% endif %}>#}
+{#          «#}
+{#        </a>#}
+{#      </li>#}
+{#      <li class="page-item {% if not page_obj.has_previous %} disabled{% endif %}">#}
+{#        <a class="page-link"#}
+{#            {% if page_obj.has_previous %}#}
+{#              {% if '?' in request.get_full_path %}#}
+{#           href="{{ request.get_full_path }}&page={{ page_obj.previous_page_number }}"#}
+{#              {% else %}#}
+{#           href="{{ request.get_full_path }}?page={{ page_obj.previous_page_number }}"#}
+{#              {% endif %}#}
+{#            {% endif %}#}
+{#           tabindex="-1"#}
+{#           {% if not page_obj.has_previous %}aria-disabled="true"{% endif %}>#}
+{#          ‹#}
+{#        </a>#}
+{#      </li>#}
+{#      {% for i in page_obj.paginator.page_range %}#}
+{#        {% if i <= page_obj.number|add:2 and i >= page_obj.number|add:-2 %}#}
+{#          {% if page_obj.number == i %}#}
+{#            <li class="page-item active">#}
+{#              <span class="page-link">{{ i }}</span>#}
+{#            </li>#}
+{#          {% else %}#}
+{#            <li class="page-item">#}
+{#              <a class="page-link"#}
+{#                  {% if '?' in request.get_full_path %}#}
+{#                 href="{{ request.get_full_path }}&page={{ i }}"#}
+{#                  {% else %}#}
+{#                 href="{{ request.get_full_path }}?page={{ i }}"#}
+{#                  {% endif %}>#}
+{#                {{ i }}</a>#}
+{#            </li>#}
+{#          {% endif %}#}
+{#        {% endif %}#}
+{#      {% endfor %}#}
+{#      <li class="page-item {% if not page_obj.has_next %} disabled{% endif %}">#}
+{#        <a class="page-link"#}
+{#            {% if page_obj.has_next %}#}
+{#              {% if '?' in request.get_full_path %}#}
+{#           href="{{ request.get_full_path }}&page={{ page_obj.next_page_number }}"#}
+{#              {% else %}#}
+{#           href="{{ request.get_full_path }}?page={{ page_obj.next_page_number }}"#}
+{#              {% endif %}#}
+{#            {% endif %}#}
+{#           tabindex="-1"#}
+{#           {% if not page_obj.has_next %}aria-disabled="true"{% endif %}>#}
+{#          ›#}
+{#        </a>#}
+{#      </li>#}
+{#      <li class="page-item {% if not page_obj.has_next %} disabled{% endif %}">#}
+{#        <a class="page-link"#}
+{#            {% if page_obj.has_next %}#}
+{#              {% if '?' in request.get_full_path %}#}
+{#           href="{{ request.get_full_path }}&page={{ page_obj.paginator.num_pages }}"#}
+{#              {% else %}#}
+{#           href="{{ request.get_full_path }}?page={{ page_obj.paginator.num_pages }}"#}
+{#              {% endif %}#}
+{#            {% endif %}#}
+{#           tabindex="-1"#}
+{#           {% if not page_obj.has_next %}aria-disabled="true"{% endif %}>#}
+{#          »#}
+{#        </a>#}
+{#      </li>#}
+{#    </ul>#}
+{#  </nav>#}
+{#{% endif %}#}

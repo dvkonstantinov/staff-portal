@@ -1,0 +1,11 @@
+{% extends "inc/forms/_unregistered_user.html" %}
+{% load static %}
+{% block title %}Успешное подтверждение email{% endblock %}
+{% block page_title %}Email подтвержден{% endblock %}
+{% block page_descr %}Теепрь вы можете начать пользоваться сервисом{% endblock %}
+{% block unreg_content %}
+  <div class="col-12">
+    <a class="btn btn-primary w-100" href="{% url 'authapp:login' %}">Начать
+      пользоваться</a>
+  </div>
+{% endblock %}

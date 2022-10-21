@@ -1,8 +1,8 @@
 from django.urls import path
-from . import views
+from .views import main_page
 
 app_name = 'main'
 
 urlpatterns = [
-    path('', views.qwe, name='main'),
+    path('', main_page, name='home_page'),
 ]

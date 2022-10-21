@@ -47,3 +47,45 @@
 
 form .invalid-feedback {
   display: block; }
+
+.profile-list-card .card-body {
+  padding: 20px; }
+.profile-list-card img {
+  width: 80px;
+  height: 80px; }
+.profile-list-card a {
+  text-decoration: none; }
+.profile-list-card .profile-card {
+  width: 65%; }
+  @media (max-width: 767px) {
+    .profile-list-card .profile-card {
+      width: 75%; } }
+  @media (max-width: 499px) {
+    .profile-list-card .profile-card {
+      width: 100%; } }
+.profile-list-card .arrow-block {
+  width: 35%; }
+  @media (max-width: 767px) {
+    .profile-list-card .arrow-block {
+      width: 25%; } }
+  @media (max-width: 499px) {
+    .profile-list-card .arrow-block {
+      width: 100%; }
+      .profile-list-card .arrow-block br {
+        display: none; } }
+  .profile-list-card .arrow-block .last-seen {
+    display: block;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 0;
+    margin-top: 10px; }
+    @media (max-width: 499px) {
+      .profile-list-card .arrow-block .last-seen {
+        text-align: right; } }
+  @media (max-width: 767px) {
+    .profile-list-card .arrow-block a {
+      display: none !important; } }
+  .profile-list-card .arrow-block a::before {
+    font-size: 40px;
+    font-size: 40px;
+    cursor: pointer; }

@@ -1,14 +1,16 @@
 {% extends "base.html" %}
 {% load static %}
 {% load user_filters %}
-{% block title %}Профиль {{ user.first_name }} {{ user.last_name }}{% endblock %}
+{% block title %}Профиль {{ user.first_name }}
+  {{ user.last_name }}{% endblock %}
 {% block content %}
 
   <div class="pagetitle">
     <h1>{{ user.first_name }} {{ user.last_name }}</h1>
     <nav>
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+        <li class="breadcrumb-item"><a href="index.html"><i
+            class="bi bi-house-door"></i></a></li>
         <li class="breadcrumb-item"><a href="
 {% url 'users:user_list' %}">Пользователи</a></li>
         <li class="breadcrumb-item active">
@@ -473,8 +475,9 @@
           </div>
         </div>
       </div>
-      </section>
     {% endif %}
+  </section>
+
 {% endblock %}
 
 {% block page_scripts %}

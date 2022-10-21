@@ -79,6 +79,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(_('Активный пользователь'), default=True)
     last_activity = models.DateTimeField(blank=True, null=True)
     date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
+    verified = models.BooleanField(verbose_name="Email Подтвержден",
+                                   default=False)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
 
@@ -97,7 +99,7 @@ class EmailConfirmation(models.Model):
     user = models.ForeignKey(AUTH_USER_MODEL,
                              on_delete=models.CASCADE,
                              verbose_name='Пользователь')
-    verified = models.BooleanField(verbose_name="Подтвержден", default=False)
+
 
 
 class Profile(models.Model):

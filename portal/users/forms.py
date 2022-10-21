@@ -5,6 +5,10 @@ from users.models import Profile
 
 User = get_user_model()
 
+REGISTER_SORT_CHOICES = (
+    ('old', 'Сначала старые'),
+    ('new', 'Сначала новые'),
+)
 
 class UserForm(forms.ModelForm):
 
@@ -25,3 +29,18 @@ class UserProfileForm(forms.ModelForm):
             'birthday': forms.DateInput(format='%d/%m/%Y',
                                         attrs={'type': 'date'})
         }
+
+
+class UserSearchForm(forms.Form):
+    name = forms.CharField(label='Поиск по ФИО', required=False,
+                           widget=forms.TextInput(
+                               attrs={'class': 'form-control',
+                                      'name': 'name'}
+                           ))
+    registration_date = forms.ChoiceField(label='Дата регистрации',
+                                          required=False,
+                                          choices=REGISTER_SORT_CHOICES,
+                                          widget=forms.Select(
+                                              attrs={'class': 'form-select',
+                                                     'name': 'date'}
+                                          ))

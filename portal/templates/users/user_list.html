@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static %}
+{% load user_filters %}
+{% block title %}Список пользователей{% endblock %}
+{% block content %}
+
+  <div class="pagetitle">
+    <h1>Список пользователей</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'main:home_page' %}"><i
+            class="bi bi-house-door"></i></a></li>
+        <li class="breadcrumb-item">Пользователи</li>
+      </ol>
+    </nav>
+  </div>
+
+  <section class="section profile">
+    <div class="row">
+      <div class="col-xl-8 col-lg-10 col-md-12">
+
+        {% for user in page_obj %}
+          <div class="card profile-list-card mb-3">
+            <div class="card-body d-flex flex-row row">
+              <div
+                  class="profile-card d-flex flex-grow-1 flex-row align-items-center">
+                <img src="{{ user.profile.thumbnail.url }}" alt="Profile"
+                     class="rounded-circle me-3">
+                <div class="profile-content">
+                  <h5 class="me-3"><a href="{% url 'users:user_profile' user_id=user.id %}">
+                    {{ user.first_name }}
+                    {{ user.last_name }}</a></h5>
+                  {% if user.profile.job %}
+                    <p class="me-3 mb-2">{{ user.profile.job }}</p>
+                  {% endif %}
+                  <h6 class="me-3"><a href="#">Преподаватели</a></h6>
+                </div>
+              </div>
+              <div
+                  class="arrow-block d-flex align-items-center justify-content-between">
+                <p class="last-seen">Последний визит: <br>
+                  {% if user.last_activity %}
+                    {{ user.last_activity }}
+                  {% else %}
+                    Нет
+                  {% endif %}
+                </p>
+                <a href="{% url 'users:user_profile' user_id=user.id %}"
+                   class="bi bi-arrow-right-square"></a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      <div class="col-xl-4 col-lg-6 col-md-12">
+        <div class="card">
+          <div class="card-body"><h5 class="card-title">Фильтры и
+            сортировка</h5>
+            <form method="get">
+            {% include 'users/forms/user_search_form.html' %}
+              </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xl-8 col-lg-10 col-md-12">
+        {% include 'inc/_pagination.html' %}
+      </div>
+    </div>
+
+  </section>
+{% endblock %}
+
+{% block page_scripts %}
+  <script>
+      window.addEventListener('load', () => {
+          const dropdown = document.querySelector('.pagination');
+          dropdown.classList.toggle('pagination-sm',
+              window.matchMedia('(max-width:769px)').matches);
+      });
+
+      window.addEventListener('resize', () => {
+          const dropdown = document.querySelector('.pagination');
+          dropdown.classList.toggle('pagination-sm',
+              window.matchMedia('(max-width:769px)').matches);
+      });
+  </script>
+{% endblock %}

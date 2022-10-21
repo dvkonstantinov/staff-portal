@@ -1,10 +1,15 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.tokens import default_token_generator
+from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.views.generic import ListView
+from django_filters.views import FilterView
 
 from authapp.forms import CustomPasswordChangeForm
-from .forms import UserProfileForm, UserForm
+from .filters import UserFilter
+from .forms import UserProfileForm, UserForm, UserSearchForm
 from .models import Profile
 from .utils import image_fetcher
 
@@ -12,11 +17,60 @@ User = get_user_model()
 
 account_activation_token = default_token_generator
 
-def user_list(request):
-    pass
+USERS_PER_PAGE = 5
 
+
+class UserListView(FilterView):
+    model = User
+    template_name = 'users/user_list.html'
+    paginate_by = USERS_PER_PAGE
+    filterset_class = UserFilter
+    queryset = User.objects.filter(is_active=True, verified=True)
+    # def get_queryset(self):
+    #     filter_val = self.request.GET.get('filter', 'give-default-value')
+    #     order = self.request.GET.get('orderby', 'give-default-value')
+    #     new_context = Update.objects.filter(
+    #         state=filter_val,
+    #     ).order_by(order)
+    #     return new_context
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        form = UserSearchForm(self.request.GET or None)
+        context['user_search_form'] = form
+        print(context)
+        # context['filter'] = self.request.GET.get('filter',
+        #                                          'give-default-value')
+        # context['orderby'] = self.request.GET.get('orderby',
+        #                                           'give-default-value')
+        return context
+# @login_required
+# def user_list(request):
+#     # users = User.objects.filter(is_active=True, verified=True)
+#
+#     # paginator = Paginator(users, USERS_PER_PAGE)
+#     # page_number = request.GET.get('page')
+#     # page_obj = paginator.get_page(page_number)
+#     # context = {
+#     #     'page_obj': page_obj
+#     # }
+#     qs = User.objects.all()
+#     print(request.GET)
+#     f = UserFilter(data=request.GET, queryset=qs)
+#     print(f.queryset)
+#     # name_contains_query = request.GET.get('name')
+#
+#     # if name_contains_query != '' and name_contains_query is not None:
+#     #     qs = qs.filter(first_name__icontains=name_contains_query)
+#     # print(qs)
+#     context = {
+#         'page_obj': qs
+#     }
+#     return render(request, 'users/user_list.html', context=context)
+
+
+@login_required
 def user_profile(request, user_id):
-    print(request)
     user = User.objects.get(pk=user_id)
     user_form = UserForm(request.POST or None, instance=user)
     profile_form = UserProfileForm(request.POST or None,
@@ -38,6 +92,7 @@ def user_profile(request, user_id):
     return render(request, 'users/user_profile.html', context=context)
 
 
+@login_required
 def upload_avatar(request):
     if request.method == 'POST':
         photo_b64 = request.POST['photo']
@@ -54,9 +109,9 @@ def upload_avatar(request):
         return JsonResponse({'errors': 'method not allowed'}, status=400)
 
 
+@login_required
 def remove_avatar(request):
     if request.method == 'POST':
-        # profile = Profile(user=request.user)
         default_photo = Profile._meta.get_field('photo').get_default()
         default_thumb = Profile._meta.get_field('thumbnail').get_default()
         print(default_photo)

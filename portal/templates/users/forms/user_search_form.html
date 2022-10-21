@@ -1,0 +1,43 @@
+{#<div class="row mb-3"><label for="inputText"#}
+{#                             class="col-sm-12#}
+{#                                           col-form-label">Поиск по ФИО</label>#}
+{#  <div class="col-sm-12"><input name="first_name" type="text"#}
+{#                                class="form-control">#}
+{#  </div>#}
+{#</div>#}
+{#<div class="row mb-3"><label class="col-sm-12#}
+{#              col-form-label">Дата регистрации</label>#}
+{#  <div class="col-sm-12"><select name="date"#}
+{#                                 class="form-select"#}
+{#                                 aria-label="Default select example">#}
+{#    <option selected="">По умолчанию</option>#}
+{#    <option value="new">Сначала новые</option>#}
+{#    <option value="old">Сначала старые</option>#}
+{#  </select></div>#}
+{#</div>#}
+{#<div class="row mb-3 mt-5">#}
+{#  <div class="col-sm-12 text-center">#}
+{#    <button type="submit" class="btn btn-primary">Поиск#}
+{#    </button>#}
+{#  </div>#}
+{#</div>#}
+{% for field in user_search_form %}
+   <div class="row mb-3">
+    <label for="{{ field.id_for_label }}"
+           class="col-sm-12 col-form-label">
+      {{ field.label }}
+    </label>
+    <div class="col-md-12">
+      {{ field }}
+    </div>
+    {% include 'inc/forms/_form_field_errors.html' %}
+  </div>
+{% endfor %}
+<div class="row mb-3 mt-4">
+  <div class="col-sm-12 text-center">
+    <button type="submit" class="btn btn-primary">Поиск
+    </button>
+    <a href="{% url 'users:user_list' %}" class="btn btn-outline-primary">Сброс
+    </a>
+  </div>
+</div>
