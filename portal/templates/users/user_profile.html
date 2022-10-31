@@ -176,62 +176,9 @@
                         action="
 {% url 'users:user_profile' user_id=user.id %}">
                     {% csrf_token %}
-                    {% for field in form %}
-                      <div class="row mb-3"
-                          {% if field.field.required %}
-                           aria-required="true"
-                          {% else %}
-                           aria-required="false"
-                          {% endif %}
-                      >
-                        <label for="{{ field.id_for_label }}"
-                               class="col-md-4 col-lg-3 col-form-label">
-                          {{ field.label }}
-                          {% if field.field.required %}
-                            <span class="required text-danger">*</span>
-                          {% endif %}
-                        </label>
-                        <div class="col-md-8 col-lg-9">
-                          {{ field|addclass:'form-control' }}
-                        </div>
-                        {% include 'inc/forms/_form_field_errors.html' %}
-                        {% if field.help_text %}
-                          <small id="{{ field.id_for_label }}-help" class="form-text
-                    text-muted">
-                            {{ field.help_text|safe }}
-                          </small>
-                        {% endif %}
+                    {% include 'users/forms/user_user_form.html' %}
+                    {% include 'users/forms/user_profile_form.html' %}
 
-                      </div>
-                    {% endfor %}
-                    {% for field in form2 %}
-                      <div class="row mb-3"
-                          {% if field.field.required %}
-                           aria-required="true"
-                          {% else %}
-                           aria-required="false"
-                          {% endif %}
-                      >
-                        <label for="{{ field.id_for_label }}"
-                               class="col-md-4 col-lg-3 col-form-label">
-                          {{ field.label }}
-                          {% if field.field.required %}
-                            <span class="required text-danger">*</span>
-                          {% endif %}
-                        </label>
-                        <div class="col-md-8 col-lg-9">
-                          {{ field|addclass:'form-control' }}
-                        </div>
-                        {% include 'inc/forms/_form_field_errors.html' %}
-                        {% if field.help_text %}
-                          <small id="{{ field.id_for_label }}-help" class="form-text
-                    text-muted">
-                            {{ field.help_text|safe }}
-                          </small>
-                        {% endif %}
-
-                      </div>
-                    {% endfor %}
                     <div class="text-center">
                       <button type="submit" class="btn btn-primary">Сохранить
                       </button>
@@ -239,7 +186,6 @@
                   </form>
 
                 </div>
-
 
                 <div class="tab-pane fade pt-3" id="profile-settings">
 
@@ -661,23 +607,7 @@
           });
       });
 
-      function getCookie(name) {
-          let cookieValue = null;
-          if (document.cookie && document.cookie !== '') {
-              const cookies = document.cookie.split(';');
-              for (let i = 0; i < cookies.length; i++) {
-                  const cookie = cookies[i].trim();
-                  // Does this cookie string begin with the name we want?
-                  if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                      cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                      break;
-                  }
-              }
-          }
-          return cookieValue;
-      }
 
-      const csrftoken = getCookie('csrftoken');
 
 
       function avatarTextInputter(text) {

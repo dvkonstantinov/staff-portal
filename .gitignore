@@ -131,4 +131,7 @@ dmypy.json
 # .idea
 .idea
 
+
 admin/
+sent_emails/
+/portal/media/

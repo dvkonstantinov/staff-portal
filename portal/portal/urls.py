@@ -10,6 +10,7 @@ urlpatterns = [
 
     path('', include('main.urls', namespace='main')),
     path('users/', include('users.urls', namespace='users')),
+    path('docs/', include('docs.urls', namespace='docs')),
 ]
 
 if settings.DEBUG:

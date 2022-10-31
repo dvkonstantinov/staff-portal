@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth import get_user_model
 
-from users.models import Profile
+from users.models import Profile, Group
 
 User = get_user_model()
 
@@ -10,11 +10,18 @@ REGISTER_SORT_CHOICES = (
     ('new', 'Сначала новые'),
 )
 
+
 class UserForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'patronymic']
+        fields = ['first_name', 'last_name', 'patronymic', 'group']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'patronymic': forms.TextInput(attrs={'class': 'form-control'}),
+            'group': forms.Select(attrs={'class': 'form-select'}),
+        }
 
 
 class UserProfileForm(forms.ModelForm):
@@ -44,3 +51,73 @@ class UserSearchForm(forms.Form):
                                               attrs={'class': 'form-select',
                                                      'name': 'date'}
                                           ))
+
+
+ACTIVITY_SORT_CHOICES = (
+    ('old', 'От старого к новому'),
+    ('new', 'От нового к старому'),
+)
+
+
+class AdminUserForm(UserForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'patronymic', 'group',
+                  'is_admin', 'is_active', 'verified']
+        widgets = {
+            'is_admin': forms.CheckboxInput(attrs={'class':
+                                                       'form-check-input'}),
+            'is_active': forms.CheckboxInput(attrs={'class':
+                                                        'form-check-input'}),
+            'verified': forms.CheckboxInput(attrs={'class':
+                                                       'form-check-input'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'patronymic': forms.TextInput(attrs={'class': 'form-control'}),
+            'group': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+
+class AdminUserSearchForm(UserSearchForm):
+    email = forms.CharField(label='Поиск по Email', required=False,
+                            widget=forms.TextInput(
+                                attrs={'class': 'form-control',
+                                       'name': 'email'}
+                            ))
+    activity = forms.ChoiceField(label='Дата последнего визита',
+                                 required=False,
+                                 choices=ACTIVITY_SORT_CHOICES,
+                                 widget=forms.Select(
+                                     attrs={'class': 'form-select',
+                                            'name': 'activity'}
+                                 ))
+    group = forms.ModelChoiceField(Group.objects.all(),
+                                   required=False,
+                                   label='Группа',
+                                   to_field_name='title',
+                                   empty_label='Любая',
+                                   widget=forms.Select(
+                                       attrs={'class': 'form-select',
+                                              'name': 'group'}
+                                   ))
+
+    registration_date = None
+    field_order = ['activity', 'group', 'name', 'email']
+
+
+class AdminGroupEditAddForm(forms.ModelForm):
+    title = forms.CharField(label='Название группы',
+                            widget=forms.TextInput(
+                                attrs={'class': 'form-control',
+                                       'name': 'title'}
+                            ))
+
+    slug = forms.CharField(label='Slug группы',
+                           widget=forms.TextInput(
+                               attrs={'class': 'form-control',
+                                      'name': 'slug'}
+                           ))
+
+    class Meta:
+        model = Group
+        fields = ['title', 'slug']

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load static %}
+{% load user_filters %}
+{% block title %}Редактирование пользователя {{ user.first_name }}
+  {{ user.last_name }}{% endblock %}
+{% block content %}
+
+  <div class="pagetitle">
+    <h1>Редактирование пользователя</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'main:home_page' %}"><i
+            class="bi bi-house-door"></i></a></li>
+        <li class="breadcrumb-item"><a href="
+{% url 'users:user_manage' %}">Пользователи</a></li>
+        <li class="breadcrumb-item">{{ user.first_name }}
+          {{ user.last_name }}</li>
+      </ol>
+    </nav>
+  </div>
+  <section class="section profile">
+    <div class="row d-flex  flex-lg-row flex-column-reverse">
+      <div class="col-lg-8 col-md-12">
+        <div class="card profile-list-card mb-3">
+          <div class="card-body d-flex flex-row row">
+            <form method="post"
+                  action="{% url 'users:user_edit' user_id=user.id %}">
+              {% csrf_token %}
+              {% include 'users/forms/user_user_form.html' %}
+              {% include 'users/forms/user_profile_form.html' %}
+              <div class="text-center">
+                <button type="submit" class="btn btn-primary">Сохранить
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-12">
+        <div class="card p-3">
+          <h5>Пояснение</h5>
+          <p>Здесь вы можете поменять информацию о пользователе, выдать или
+            убрать у него права администратора.
+          </p>
+          <p>Чтобы заблокировать пользователя, уберите галочку у поля
+            "Активный пользователь" и сохраните.</p>
+          <p>Если пользователь не может подтвердить email по какой-либо
+            причине, вы как администратор можете подтвердить за него,
+            поставив галочку в соответсвтущее поле и сохранив форму.</p>
+          <p>Если пользователь не активен или email не подтвержден, он не
+            появится в результатах поиска на <a href="
+{% url 'users:user_list' %}">этой</a>
+            странице</p>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

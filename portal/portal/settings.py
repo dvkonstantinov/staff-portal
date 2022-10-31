@@ -26,7 +26,8 @@ INSTALLED_APPS = [
     'authapp',
     'users',
     'core',
-    'main'
+    'main',
+    'docs',
 ]
 
 MIDDLEWARE = [

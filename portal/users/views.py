@@ -1,16 +1,20 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.tokens import default_token_generator
 from django.core.paginator import Paginator
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
+from django.views.decorators.http import require_http_methods
 from django.views.generic import ListView
 from django_filters.views import FilterView
 
 from authapp.forms import CustomPasswordChangeForm
-from .filters import UserFilter
-from .forms import UserProfileForm, UserForm, UserSearchForm
-from .models import Profile
+from core.decorators import adminuser_required
+from .filters import UserFilter, AdminUserFilter
+from .forms import UserProfileForm, UserForm, UserSearchForm, \
+    AdminGroupEditAddForm, AdminUserForm, AdminUserSearchForm
+from .models import Profile, Group
 from .utils import image_fetcher
 
 User = get_user_model()
@@ -20,53 +24,18 @@ account_activation_token = default_token_generator
 USERS_PER_PAGE = 5
 
 
-class UserListView(FilterView):
+class UserListView(LoginRequiredMixin, FilterView):
     model = User
     template_name = 'users/user_list.html'
     paginate_by = USERS_PER_PAGE
     filterset_class = UserFilter
     queryset = User.objects.filter(is_active=True, verified=True)
-    # def get_queryset(self):
-    #     filter_val = self.request.GET.get('filter', 'give-default-value')
-    #     order = self.request.GET.get('orderby', 'give-default-value')
-    #     new_context = Update.objects.filter(
-    #         state=filter_val,
-    #     ).order_by(order)
-    #     return new_context
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         form = UserSearchForm(self.request.GET or None)
         context['user_search_form'] = form
-        print(context)
-        # context['filter'] = self.request.GET.get('filter',
-        #                                          'give-default-value')
-        # context['orderby'] = self.request.GET.get('orderby',
-        #                                           'give-default-value')
         return context
-# @login_required
-# def user_list(request):
-#     # users = User.objects.filter(is_active=True, verified=True)
-#
-#     # paginator = Paginator(users, USERS_PER_PAGE)
-#     # page_number = request.GET.get('page')
-#     # page_obj = paginator.get_page(page_number)
-#     # context = {
-#     #     'page_obj': page_obj
-#     # }
-#     qs = User.objects.all()
-#     print(request.GET)
-#     f = UserFilter(data=request.GET, queryset=qs)
-#     print(f.queryset)
-#     # name_contains_query = request.GET.get('name')
-#
-#     # if name_contains_query != '' and name_contains_query is not None:
-#     #     qs = qs.filter(first_name__icontains=name_contains_query)
-#     # print(qs)
-#     context = {
-#         'page_obj': qs
-#     }
-#     return render(request, 'users/user_list.html', context=context)
 
 
 @login_required
@@ -123,3 +92,89 @@ def remove_avatar(request):
         return JsonResponse({'message': 'success'}, status=200)
     else:
         return JsonResponse({'errors': 'method not allowed'}, status=400)
+
+
+class AdminUserListView(UserListView):
+    queryset = User.objects.all()
+    template_name = 'users/admin_user_list.html'
+    filterset_class = AdminUserFilter
+    paginate_by = 1
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        form = AdminUserSearchForm(self.request.GET or None)
+        context['user_search_form'] = form
+        return context
+
+
+@adminuser_required
+def admin_user_profile(request, user_id):
+    user = User.objects.get(pk=user_id)
+    user_form = AdminUserForm(request.POST or None, instance=user)
+    profile_form = UserProfileForm(request.POST or None,
+                                   instance=user.profile)
+    context = {
+        'user': user,
+        'form': user_form,
+        'form2': profile_form,
+    }
+
+    if request.method == 'POST':
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+
+    return render(request, 'users/admin_user_profile.html',
+                  context=context)
+
+
+class AdminGroupListView(ListView):
+    model = Group
+    queryset = Group.objects.all()
+    paginate_by = 10
+    template_name = 'users/admin_group_list.html'
+
+
+@adminuser_required
+@require_http_methods(["GET", "POST"])
+def admin_group_edit(request, group_id):
+    group = get_object_or_404(Group, pk=group_id)
+    if request.method == 'POST':
+        form = AdminGroupEditAddForm(request.POST or None, instance=group)
+        print(form.data)
+        if form.is_valid():
+            data = {'message': 'success'}
+            form.save()
+            return JsonResponse(data, status=200)
+        else:
+            errors = form.errors
+            return JsonResponse({"errors": errors}, status=400)
+
+    form = AdminGroupEditAddForm(instance=group)
+    context = {
+        'form': form,
+    }
+    return render(request, 'users/forms/admin_group_edit_form.html',
+                  context=context)
+
+
+@adminuser_required()
+@require_http_methods(["GET", "POST"])
+def admin_group_add(request):
+    if request.method == 'POST':
+        form = AdminGroupEditAddForm(request.POST or None)
+        print(form.data)
+        if form.is_valid():
+            data = {'message': 'success'}
+            form.save()
+            return JsonResponse(data, status=200)
+        else:
+            errors = form.errors
+            return JsonResponse({"errors": errors}, status=400)
+
+    form = AdminGroupEditAddForm()
+    context = {
+        'form': form,
+    }
+    return render(request, 'users/forms/admin_group_edit_form.html',
+                  context=context)

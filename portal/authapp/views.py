@@ -91,7 +91,6 @@ class CustomPasswordChangeView(PasswordChangeView):
     def form_valid(self, form):
         if (self.request.method == 'POST' and self.request.headers.get(
                 'x-requested-with') == 'XMLHttpRequest'):
-            print(111111111111)
             data = {'message': 'success'}
             form.save()
             update_session_auth_hash(self.request, form.user)
