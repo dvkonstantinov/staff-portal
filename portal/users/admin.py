@@ -1,7 +1,12 @@
 from django.contrib import admin
+from django.contrib.sites.models import Site
+from django.contrib.auth.models import Group as DefaultGroup
 from django.contrib.auth import get_user_model
+from users.models import Profile, Group
 
-from users.models import Profile
+admin.site.unregister(DefaultGroup)
+admin.site.unregister(Site)
+
 User = get_user_model()
 
 
@@ -21,4 +26,10 @@ class ExtendedUserAdmin(UserAdmin):
     inlines = UserAdmin.inlines + (ProfileInline,)
 
 
+class GroupAdmin(admin.ModelAdmin):
+    model = Group
+    list_display = ('id', 'title', 'slug')
+
+
 admin.site.register(User, ExtendedUserAdmin)
+admin.site.register(Group, GroupAdmin)

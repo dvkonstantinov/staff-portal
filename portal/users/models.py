@@ -146,7 +146,7 @@ class Profile(models.Model):
 
 
 class Group(models.Model):
-    title = models.CharField(max_length=200)
+    title = models.CharField(max_length=200, verbose_name='Название')
     slug = models.SlugField(max_length=100, unique=True)
 
     @receiver(post_save, sender=User)

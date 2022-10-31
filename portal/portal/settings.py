@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django_cleanup.apps.CleanupConfig',
     'django_filters',
+    'mptt',
     'authapp',
     'users',
     'core',

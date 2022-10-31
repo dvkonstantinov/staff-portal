@@ -1,3 +1,26 @@
 from django.contrib import admin
 
-# Register your models here.
+from docs.models import Document, Category, Tag
+
+
+class DocumentAdmin(admin.ModelAdmin):
+    model = Document
+    list_display = ['id', 'title', 'description', 'author', 'category']
+    list_display_links = ['id', 'title']
+
+
+class CategoryAdmin(admin.ModelAdmin):
+    model = Category
+    list_display = ['id', 'title', 'slug']
+    list_display_links = ['id', 'title']
+
+
+class TagAdmin(admin.ModelAdmin):
+    model = Tag
+    list_display = ['id', 'title', 'slug']
+    list_display_links = ['id', 'title']
+
+
+admin.site.register(Document, DocumentAdmin)
+admin.site.register(Category, CategoryAdmin)
+admin.site.register(Tag, TagAdmin)
