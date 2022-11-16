@@ -13,6 +13,7 @@ SITE_ID = 1
 
 SITE_DOMAIN = '127.0.0.1:8000'
 SITE_PROTOCOL = 'http'
+SITE_FULL_PATH = SITE_PROTOCOL + '://' + SITE_DOMAIN
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -23,6 +24,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django_cleanup.apps.CleanupConfig',
     'django_filters',
+    'django_sendfile',
     'mptt',
     'authapp',
     'users',
@@ -110,3 +112,11 @@ EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/auth/login/'
+
+
+# открытие pdf
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+# отправка файлов
+# SENDFILE_ROOT = MEDIA_ROOT
+# SENDFILE_BACKEND = "django_sendfile.backends.simple"

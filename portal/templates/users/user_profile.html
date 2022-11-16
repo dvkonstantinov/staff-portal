@@ -9,7 +9,7 @@
     <h1>{{ user.first_name }} {{ user.last_name }}</h1>
     <nav>
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="index.html"><i
+        <li class="breadcrumb-item"><a href="{% url 'main:home_page' %}"><i
             class="bi bi-house-door"></i></a></li>
         <li class="breadcrumb-item"><a href="
 {% url 'users:user_list' %}">Пользователи</a></li>

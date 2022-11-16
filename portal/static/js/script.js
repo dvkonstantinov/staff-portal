@@ -1,7 +1,8 @@
 jQuery(document).ready(function ($) {
+    let clearLocation = location.protocol + '//' + location.host + location.pathname;
     $('#sidebar-nav a').each(function () {
         let link = this.href
-        if (location == link) {
+        if (clearLocation == link) {
             $(this).addClass('active')
             let navItem = $(this).closest('.nav-item')
             navItem.children('a.nav-link').removeClass('collapsed')
@@ -9,7 +10,11 @@ jQuery(document).ready(function ($) {
             $(this).removeClass('collapsed')
         }
     })
-})
+    $('#clearSearch').click(function (e) {
+        e.preventDefault();
+        document.location.href  = clearLocation;
+    });
+});
 
 function getCookie(name) {
     let cookieValue = null;
@@ -24,6 +29,11 @@ function getCookie(name) {
         }
     }
     return cookieValue;
-}
+};
 
 const csrftoken = getCookie('csrftoken');
+
+
+// document.querySelector('#clearSearch').addEventListener() = function() {
+//     document.location.href =
+// }

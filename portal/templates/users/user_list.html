@@ -17,7 +17,17 @@
 
   <section class="section profile">
     <div class="row">
-      <div class="col-xl-8 col-lg-10 col-md-12">
+    <div class="col-xl-3 col-lg-6 col-md-12">
+        <div class="card">
+          <div class="card-body"><h5 class="card-title">Фильтры и
+            сортировка</h5>
+            <form method="get">
+              {% include 'users/forms/user_search_form.html' %}
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-9 col-lg-10 col-md-12">
 
         {% for user in page_obj %}
           <div class="card profile-list-card mb-3">
@@ -27,7 +37,8 @@
                 <img src="{{ user.profile.thumbnail.url }}" alt="Profile"
                      class="rounded-circle me-3">
                 <div class="profile-content">
-                  <h5 class="me-3"><a href="{% url 'users:user_profile' user_id=user.id %}">
+                  <h5 class="me-3"><a
+                      href="{% url 'users:user_profile' user_id=user.id %}">
                     {{ user.first_name }}
                     {{ user.last_name }}</a></h5>
                   {% if user.profile.job %}
@@ -49,24 +60,17 @@
                    class="bi bi-arrow-right-square"></a>
               </div>
             </div>
+
           </div>
+          <div class="col-12">
+              {% include 'inc/_pagination.html' %}
+            </div>
         {% endfor %}
       </div>
-      <div class="col-xl-4 col-lg-6 col-md-12">
-        <div class="card">
-          <div class="card-body"><h5 class="card-title">Фильтры и
-            сортировка</h5>
-            <form method="get">
-            {% include 'users/forms/user_search_form.html' %}
-              </form>
-          </div>
-        </div>
-      </div>
+
     </div>
     <div class="row">
-      <div class="col-xl-8 col-lg-10 col-md-12">
-        {% include 'inc/_pagination.html' %}
-      </div>
+
     </div>
 
   </section>

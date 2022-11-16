@@ -22,6 +22,11 @@ class Document(models.Model):
     tag = models.ManyToManyField('Tag',
                                  related_name='documents',
                                  blank=True)
+    for_signing = models.BooleanField(verbose_name='Нужно ли подписывать',
+                                      default=False)
+    signed = models.ManyToManyField(User,
+                                    related_name='signed_documents',
+                                    blank=True)
 
     def __str__(self):
         return self.title

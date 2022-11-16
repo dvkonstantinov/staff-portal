@@ -3,7 +3,6 @@
 {% load user_filters %}
 {% block title %}Управление пользователями - Админка{% endblock %}
 {% block content %}
-
   <div class="pagetitle">
     <h1>Управление пользователями</h1>
     <nav>
@@ -14,9 +13,18 @@
       </ol>
     </nav>
   </div>
-
   <section class="section profile">
     <div class="row d-flex  flex-lg-row flex-column">
+      <div class="col-lg-4 col-md-12">
+        <div class="card">
+          <div class="card-body"><h5 class="card-title">Фильтры и
+            сортировка</h5>
+            <form method="get">
+              {% include 'users/forms/user_search_form.html' %}
+            </form>
+          </div>
+        </div>
+      </div>
       <div class="col-lg-8 col-md-12">
         <div class="card profile-list-card mb-3">
           <div class="card-body d-flex flex-row row">
@@ -57,18 +65,7 @@
           {% include 'inc/_pagination.html' %}
         </div>
       </div>
-      <div class="col-lg-4 col-md-12">
-        <div class="card">
-          <div class="card-body"><h5 class="card-title">Фильтры и
-            сортировка</h5>
-            <form method="get">
-              {% include 'users/forms/user_search_form.html' %}
-            </form>
-          </div>
-        </div>
-      </div>
     </div>
-
   </section>
 {% endblock %}
 

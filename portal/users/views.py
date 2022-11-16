@@ -21,7 +21,7 @@ User = get_user_model()
 
 account_activation_token = default_token_generator
 
-USERS_PER_PAGE = 5
+USERS_PER_PAGE = 1
 
 
 class UserListView(LoginRequiredMixin, FilterView):

@@ -109,9 +109,26 @@ form .invalid-feedback {
     }
     a::before {
       font-size: 40px;
-      font-size: 40px;
       cursor: pointer;
       // color: #0a58ca;
     }
   }
+}
+
+.doc-canvas {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.doc-preview {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+}
+
+.doc-perview__image {
+  width: 100%;
+    max-width: 350px;
+    height: auto;
 }
