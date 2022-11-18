@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load static %}
+{% load user_filters %}
+{% block title %}Список пользователей{% endblock %}
+{% block content %}
+
+  <div class="pagetitle">
+    <h1>Руководящие документы</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'main:home_page' %}"><i
+            class="bi bi-house-door"></i></a></li>
+        <li class="breadcrumb-item">Документы</li>
+      </ol>
+    </nav>
+  </div>
+
+  <section class="section profile">
+    <div class="row d-flex  flex-lg-row flex-column">
+    <div class="col-xl-3 col-lg-5 col-md-12">
+        <div class="card">
+          <div class="card-body"><h5 class="card-title">Фильтры и
+            сортировка</h5>
+            <form method="get">
+              {% include 'docs/forms/docs_search_form.html' %}
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-9 col-lg-7 col-md-12">
+        <div class="card profile-list-card mb-3">
+          <div class="card-body d-flex flex-row row">
+            <div class="row pb-2 pt-2 flex-xl-row d-none d-xl-flex">
+              <div class="col-xl-1 id">
+                <span class="doc-title fw-bolder">ID</span>
+              </div>
+              <div class="col-xl-6 title">
+                <span class="doc-title fw-bolder">Название</span>
+              </div>
+              <div class="col-xl-2 cat">
+                <span class="doc-title fw-bolder">Категория</span>
+              </div>
+              <div class="col-xl-3 title">
+                <span class="doc-title fw-bolder">Статус</span>
+              </div>
+            </div>
+            <hr class="m-0 d-none d-xl-block">
+            {% for doc in page_obj %}
+              <div class="row pb-2 pt-2 d-flex flex-xl-row">
+                <div class="col-12 col-xl-1 id"><span>{{ doc.id }}</span></div>
+                <div class="col-12 col-xl-6 title"><a href="
+{% url 'docs:doc_detail' doc_id=doc.id %}">
+                  {{ doc.title }}</a></div>
+                <div class="col-12 col-xl-2 cat"><a href="#">
+                  {{ doc.category.title }}</a></div>
+                <div class="col-12 col-xl-3 status"><span>
+                  {% if not doc.for_signing %}
+                    К ознакомлению
+                  {% else %}
+                    {% if doc in request.user.signed_documents.all %}
+                      Подписан
+                    {% else %}
+                      К подписанию
+                    {% endif %}
+                  {% endif %}
+                </span></div>
+              </div>
+              {% if not forloop.last %}
+                <hr class="m-0">{% endif %}
+            {% endfor %}
+          </div>
+        </div>
+        <div class="col-12">
+          {% include 'inc/_pagination.html' %}
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+{% endblock %}
+
+{% block page_scripts %}
+  <script>
+      window.addEventListener('load', () => {
+          const dropdown = document.querySelector('.pagination');
+          dropdown.classList.toggle('pagination-sm',
+              window.matchMedia('(max-width:769px)').matches);
+      });
+
+      window.addEventListener('resize', () => {
+          const dropdown = document.querySelector('.pagination');
+          dropdown.classList.toggle('pagination-sm',
+              window.matchMedia('(max-width:769px)').matches);
+      });
+  </script>
+{% endblock %}

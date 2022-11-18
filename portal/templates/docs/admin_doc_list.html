@@ -1,0 +1,373 @@
+{% extends "base.html" %}
+{% load static %}
+{% load user_filters %}
+{% block title %}Список пользователей{% endblock %}
+{% block content %}
+
+  <div class="pagetitle">
+    <h1>Руководящие документы</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'main:home_page' %}"><i
+            class="bi bi-house-door"></i></a></li>
+        <li class="breadcrumb-item">Управление документами</li>
+      </ol>
+    </nav>
+  </div>
+
+  <section class="section profile">
+    <div class="row">
+      <div class="col-12">
+        <div class="card profile-list-card mb-3">
+          <div class="card-body d-flex flex-row row">
+            <div class="row pb-2 pt-2">
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                  <tr>
+                    <th scope="col">id</th>
+                    <th scope="col">Название</th>
+                    <th scope="col">Категория</th>
+                    <th scope="col">Дата</th>
+                    <th scope="col">Загрузил</th>
+                    <th class="text-center">Изменить</th>
+                    <th class="text-center">Удалить</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  {% for doc in page_obj %}
+                    <tr>
+                      <th scope="row">{{ doc.id }}</th>
+                      <td><a
+                          class="edit-modal-open document-title"
+                          role="button"
+                          data-endpoint="{% url 'docs:doc_edit' doc_id=doc.id %}"
+                      >{{ doc.title }}</a>
+                      </td>
+                      <td>{{ doc.category }}</td>
+                      <td>{{ doc.created_at }}</td>
+                      <td>{{ user.email }}</td>
+                      <td class=" text-center">
+                        <a
+                            class="bi bi-pencil-fill edit-modal-open"
+                            role="button"
+                            data-endpoint="{% url 'docs:doc_edit' doc_id=doc.id %}"
+                        ></a>
+                      </td>
+                      <td class=" text-center">
+                        <a
+                            class="bi bi-x-lg remove-modal-open"
+                            role="button"
+                            data-endpoint="{% url 'docs:doc_remove' doc_id=doc.id %}"
+                        ></a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="col-12">
+              {% include 'inc/_pagination.html' %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xl-3 col-lg-5 col-md-12">
+        <div class="card">
+          <div class="card-body"><h5 class="card-title">Фильтры и
+            сортировка</h5>
+            <form method="get">
+              {% include 'docs/forms/docs_search_form.html' %}
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-5 col-md-12">
+        <div class="card">
+          <div class="card-body"><h5 class="card-title">Добавление
+            документа</h5>
+            <button
+                type="button"
+                class="btn btn-primary create-modal-open"
+                data-endpoint="{% url 'docs:doc_create' %}"
+            >
+              Добавить новый
+              документ
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-5 col-md-12">
+        <div class="card">
+          <div class="card-body"><h5 class="card-title">Описание</h5>
+            <p>fddsafsdfs</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <div class="modal fade" id="docEditModal" tabindex="-1"
+       aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="modalEditTitle">Изменение
+            документа</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="modalEditClose"
+                  data-bs-dismiss="modal">Закрыть
+          </button>
+          <button id="modalEditSubmit" type="button" class="btn
+          btn-primary">Сохранить
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="docRemoveModal" tabindex="-1"
+       aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="modalRemoveTitle">Удаление
+            документа</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                  id="modalRemoveClose">Отмена
+          </button>
+          <button id="modalRemoveSubmit" type="button" class="btn
+            btn-primary">Да
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block page_scripts %}
+  <link rel="stylesheet"
+        href="{% static 'vendor/bootstrap-select/bootstrap-multiselect.min.css' %}">
+  <script
+      src="{% static 'vendor/bootstrap-select/bootstrap-multiselect.min.js' %}"></script>
+  <script>
+      jQuery(document).ready(function ($) {
+          let multiselectOptions = {
+              nonSelectedText: 'Выбрать группы',
+              includeSelectAllOption: true,
+              selectAllText: 'Выбрать все',
+              allSelectedText: 'Выбрано все',
+              buttonContainer: '<div class="btn-group multiselect-group">',
+              buttonClass: 'btn btn-primary',
+              buttonText: function (options) {
+                  if (options.length === 0) {
+                      return 'Выбрать группы';
+                  } else if (options.length >= 2) {
+                      return options.length + ' выбрано';
+                  } else {
+                      var selected = [];
+                      options.each(function () {
+                          selected.push([$(this).text(), $(this).data('order')]);
+                      });
+
+                      selected.sort(function (a, b) {
+                          return a[1] - b[1];
+                      });
+
+                      var text = '';
+                      for (var i = 0; i < selected.length; i++) {
+                          text += selected[i][0] + ', ';
+                      }
+
+                      return text.substr(0, text.length - 2);
+                  }
+              },
+              templates: {
+                  button:
+                      '<button type="button" class="multiselect dropdown-toggle btn btn-primary" data-bs-toggle="dropdown" aria-expanded="false"><span class="multiselect-selected-text"></span></button>',
+                  popupContainer: '<div class="multiselect-container ' +
+                      'dropdown-menu"></div>',
+              },
+          }
+
+          const docEditModal = new bootstrap.Modal(document.getElementById('docEditModal'))
+          const docRemoveModal = new bootstrap.Modal(document.getElementById('docRemoveModal'))
+          let updateLink = $('.edit-modal-open')
+          let createLink = $('.create-modal-open')
+          let removeLink = $('.remove-modal-open')
+          let modalEditBody = document.querySelector('#docEditModal .modal-body')
+          let modalRemoveBody = document.querySelector('#docRemoveModal .modal-body')
+          let modalEditSubmit = document.querySelector('#modalEditSubmit')
+          let modalRemoveSubmit = document.querySelector('#modalRemoveSubmit')
+          let modalEditTitle = document.querySelector('#modalEditTitle')
+          let modalEditClose = document.querySelector('#modalEditClose')
+          let modalRemoveClose = document.querySelector('#modalRemoveClose')
+
+          let endpoint
+
+          updateLink.click(function () {
+              endpoint = $(this).attr('data-endpoint');
+              modalEditSubmit.classList.remove('d-none');
+              docEditModal.show();
+              loadFormContentAjax('Изменить документ');
+          });
+          createLink.click(function () {
+              endpoint = $(this).attr('data-endpoint');
+              modalEditSubmit.classList.remove('d-none');
+              docEditModal.show();
+              loadFormContentAjax('Добавить новый документ');
+          });
+          removeLink.click(function () {
+              endpoint = $(this).attr('data-endpoint');
+              docRemoveModal.show();
+              let docTitle = $(this).parent().parent().find('a' +
+                  '.document-title').text();
+              modalRemoveBody.innerHTML = '<p>Вы уверены, что хотите удалить' +
+                  ' документ ' + docTitle + '</p>';
+          });
+          modalEditClose.addEventListener
+          ('click', function () {
+              docEditModal.hide();
+          })
+          modalRemoveClose.addEventListener
+          ('click', function () {
+              docEditModal.hide();
+          })
+
+          $(modalEditSubmit).on('click', DocPostAjax);
+          $(modalRemoveSubmit).on('click', DocRemoveAjax);
+
+          function loadFormContentAjax(title) {
+              $.ajax({
+                  type: 'get',
+                  url: endpoint,
+                  success: function (response) {
+                      modalEditBody.innerHTML = '';
+                      modalEditBody.innerHTML = response;
+                      let groupForm = $(modalEditBody).find('form');
+                      modalEditTitle.innerHTML = title;
+                      modalEditSubmit.setAttribute('form', groupForm.attr('id'));
+                      $('#multiselect').multiselect(multiselectOptions);
+                      modalRemoveClose.textContent = 'Закрыть'
+                  },
+                  error: function (response) {
+                      console.log(response);
+                      modalEditBody.innerHTML = 'Произошла ошибка. Попробуйте ' +
+                          'позднее или обратитесь к администратору';
+                      $(modalEditSubmit).addClass('d-none');
+                      modalRemoveClose.textContent = 'Закрыть'
+                  }
+              });
+          }
+
+          function DocRemoveAjax(e) {
+              e.preventDefault();
+              let data = new FormData();
+              data.append('csrfmiddlewaretoken', csrftoken)
+              $.ajax({
+                  data: data,
+                  type: 'post',
+                  url: endpoint,
+                  cache: false,
+                  processData: false,
+                  contentType: false,
+                  success: function (response) {
+                      console.log(response)
+                      modalRemoveBody.innerHTML = response;
+                      $(modalRemoveSubmit).addClass('d-none');
+                  },
+                  error: function (response) {
+                      console.log(response)
+                      modalEditBody.innerHTML = 'Произошла ошибка. Попробуйте ' +
+                          'позднее или обратитесь к администратору';
+                      $(modalEditSubmit).addClass('d-none');
+                  }
+              });
+          }
+
+          function DocPostAjax(e) {
+              e.preventDefault();
+              let form = $(modalEditBody).find('form');
+              let data = new FormData(form.get(0));
+              data.append('csrfmiddlewaretoken', csrftoken)
+              $.ajax({
+                  type: 'post',
+                  url: endpoint,
+                  data: data,
+                  cache: false,
+                  processData: false,
+                  contentType: false,
+                  success: function (response) {
+                      console.log(response)
+                      DocFormSuccess(modalEditSubmit)
+                  },
+                  error: function (response) {
+                      console.log(response)
+                      DocFormError(response, form)
+                  }
+              });
+          }
+
+
+          function DocFormError(response, form) {
+              form.find('div.invalid-feedback').remove()
+              form.find('input, textarea, select, .multiselect-group')
+                  .click(function () {
+                      $(this).next('div.invalid-feedback').remove()
+                  })
+              let form_errors = response['responseJSON']['errors']
+              console.log(form_errors)
+              for (let key in form_errors) {
+                  let el = form.find('[name=' + key + ']')
+                  if ($(el).hasClass('multiselect')) {
+                      $(el).next('.multiselect-group').after(
+                          '<div class="invalid-feedback">' + form_errors[key] + '</div>'
+                      )
+                  } else {
+                      $(el).after(
+                          '<div class="invalid-feedback">' + form_errors[key] + '</div>'
+                      )
+                  }
+              }
+          }
+
+          function DocFormSuccess(btn) {
+              modalEditBody.innerHTML = '<p>Документ успешно сохранен. ' +
+                  'Обновите страницу чтобы его увидеть</p>'
+              $(btn).toggleClass('btn-primary btn-success').html('Сохранено ' +
+                  '<i ' + 'class="bi bi-check-circle"></i>')
+              setTimeout(function () {
+                  $(btn).toggleClass('btn-primary btn-success').html
+                  ('Сохранить').addClass('d-none')
+              }, 1000);
+          };
+
+      });
+
+
+      window.addEventListener('load', () => {
+          const dropdown = document.querySelector('.pagination');
+          dropdown.classList.toggle('pagination-sm',
+              window.matchMedia('(max-width:769px)').matches);
+      });
+
+      window.addEventListener('resize', () => {
+          const dropdown = document.querySelector('.pagination');
+          dropdown.classList.toggle('pagination-sm',
+              window.matchMedia('(max-width:769px)').matches);
+      });
+  </script>
+{% endblock %}

@@ -2,6 +2,8 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
 
+from users.models import Group
+
 User = get_user_model()
 
 
@@ -24,6 +26,8 @@ class Document(models.Model):
                                  blank=True)
     for_signing = models.BooleanField(verbose_name='Нужно ли подписывать',
                                       default=False)
+    groups = models.ManyToManyField(Group,
+                                    related_name='allowed_documents')
     signed = models.ManyToManyField(User,
                                     related_name='signed_documents',
                                     blank=True)

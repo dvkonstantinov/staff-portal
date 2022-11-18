@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ doc.title }} - просмотр{% endblock %}
+{% block content %}
+
+  <div class="pagetitle">
+    <h1>{{ doc.title }}</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'main:home_page' %}">
+          <i class="bi bi-house-door"></i></a></li>
+        <li class="breadcrumb-item"><a href="
+{% url 'docs:doc_list' %}">Документы</a></li>
+        <li class="breadcrumb-item active">
+          <span>{{ doc.title|truncatewords:4 }}</span></li>
+      </ol>
+    </nav>
+  </div>
+
+  <section class="section">
+    <div class="row">
+      <div class="col-xl-12">
+        <div class="card">
+          <div class="card-body p-4">
+            <div class="row">
+              <div class="col-xl-3">
+                {% if extention == 'PDF' %}
+                  <div class="doc-preview" id="previewContainer"></div>
+                {% elif extention in 'JPG, JPEG, PNG, BMP' %}
+                  <div class="doc-preview">
+                    <img class="doc-perview__image" src="{{ doc.file.url }}"
+                         alt="">
+                  </div>
+                {% else %}
+                  <div class="doc-preview">
+                    <span style="font-size: 40px">{{ extention }}</span>
+                  </div>
+                {% endif %}
+              </div>
+              <div class="col-xl-9">
+                <h3>{{ doc.title }}</h3>
+                <p>Категория: {{ doc.category.title }}</p>
+                {% if doc.for_signing %}
+                  {% if doc in request.user.signed_documents.all %}
+                    <div id="docStatus" class="alert alert-info">Вы подписали
+                      этот
+                      документ
+                    </div>
+                  {% else %}
+                    <div id="docStatus" class="alert alert-warning">Документ нужно подписать
+                    </div>
+                  {% endif %}
+                {% else %}
+                  <div id="docStatus" class="alert alert-secondary">К ознакомлению,
+                    подписывать
+                    не нужно
+                  </div>
+                {% endif %}
+                <h5 class="">Просмотр документа</h5>
+                {% if extention == 'PDF' %}
+                  <button type="button"
+                          class=" d-block btn btn-outline-primary"
+                          data-bs-toggle="modal" data-bs-target="#docModal">
+                    Посмотреть
+                  </button>
+
+                {% elif extention in 'JPG, JPEG, PNG, BMP' %}
+                  <a href="{{ doc.file.url }}"
+                     class="btn btn-outline-primary"
+                     data-fancybox="gallery"
+                     data-caption="{{ doc.title }}">Посмотреть</a>
+                {% else %}
+                  <p>Просмотр данного типа файлов не поддерживается</p>
+                {% endif %}
+                <hr>
+                {% if doc.for_signing and doc not in request.user.signed_documents.all %}
+                  <h5>Подписать документ</h5>
+                  <button
+                      type="button"
+                      class="btn btn-primary btn-signing">Подписать
+                    документ
+                  </button>
+                  <hr>
+                {% endif %}
+                <h5>Скачать</h5>
+                <a href="{{ doc.file.url }}" download
+                   class="btn
+                btn-primary">Скачать
+                  {{ extention }}</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <div class="modal fade" id="docModal" tabindex="-1"
+       aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="exampleModalLabel">
+            {{ doc.title }}
+          </h2>
+          <button type="button" class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <iframe
+              src="{% static 'vendor/pdfjs/web/viewer.html' %}
+                ?file={{ site_path }}{{ doc.file.url }}&zoom=page-fit"
+              id="file-pdf"
+              style="width:100%;
+                     height:100%;
+                     min-height: 450px"
+              frameborder="0">
+          </iframe>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary"
+                  data-bs-dismiss="modal">Закрыть
+          </button>
+          {% if doc.for_signing and doc not in request.user.signed_documents.all %}
+            <button type="button"
+                    class="btn btn-primary btn-signing">
+              Подписать
+            </button>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block page_scripts %}
+  {% if extention == 'PDF' %}
+    <script src="{% static 'vendor/pdfjs/js/pdf.min.js' %}"></script>
+    <script>
+        let file_url = '{{ site_path }}{{ doc.file.url }}';
+        let pdfjsLib = window['pdfjs-dist/build/pdf'];
+        pdfjsLib.GlobalWorkerOptions.workerSrc = "{% static 'vendor/pdfjs/js/pdf.worker.min.js' %}";
+        idContainer = document.querySelector('#previewContainer')
+        getCanvas(file_url)
+
+        function getCanvas(file_url) {
+            idContainer.innerHTML = '<canvas ' +
+                'class="doc-canvas" id="the-canvas"></canvas>';
+
+            let loadingTask = pdfjsLib.getDocument(file_url);
+            loadingTask.promise.then(function (pdf) {
+                console.log('PDF loaded');
+
+                let pageNumber = 1;
+                pdf.getPage(pageNumber).then(function (page) {
+                    console.log('Page loaded');
+
+                    let scale = 0.5
+                    let viewport = page.getViewport({scale: scale});
+
+                    let canvas = document.getElementById("the-canvas");
+                    let context = canvas.getContext('2d');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+
+                    let renderContext = {
+                        canvasContext: context,
+                        viewport: viewport
+                    };
+
+                    let renderTask = page.render(renderContext);
+                    renderTask.promise.then(function () {
+                        console.log('Page rendered');
+                    });
+                });
+            }, function (reason) {
+                console.error(reason);
+            });
+
+        }
+    </script>
+  {% elif extention in 'JPG, JPEG, PNG, BMP' %}
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css"
+    />
+    <script type="module">
+        import {Fancybox} from "https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.esm.js";
+    </script>
+  {% endif %}
+  <script>
+      {% if doc.for_signing and doc not in request.user.signed_documents.all %}
+          jQuery(document).ready(function ($) {
+              $('.btn-signing').click(function () {
+                  console.log($(this))
+                  let docData = {
+                      'csrfmiddlewaretoken': csrftoken,
+                      'doc_id': {{ doc.id }},
+                  }
+                  $.ajax({
+                      data: docData,
+                      type: 'post',
+                      url: '{% url 'docs:doc_sign' %}',
+                      dataType: "json",
+                      success: function (response) {
+                          console.log(response)
+                          $('.btn-signing').removeClass('btn-primary')
+                              .addClass('btn-success').attr('disabled',
+                              true).text('Успешно подписано')
+                          $('#docStatus').removeClass('alert-warning')
+                              .addClass('alert-info').text('Вы подписали ' +
+                              'этот документ')
+                      },
+                      error: function (response) {
+                          console.log(response)
+                      }
+                  });
+              });
+
+          });
+      {% endif %}
+  </script>
+{% endblock %}

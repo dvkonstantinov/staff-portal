@@ -2,16 +2,19 @@ from django.urls import path
 
 from docs.views import doc_create, doc_detail, doc_edit, \
     category_list, category_create, category_detail, category_edit, tag_list, \
-    tag_create, tag_detail, tag_edit, UserListView, doc_sign
+    tag_create, tag_detail, tag_edit, DocListView, AdminDocListView, \
+    doc_sign, doc_remove
 
 app_name = 'docs'
 
 urlpatterns = [
-    path('', UserListView.as_view(), name='doc_list'),
+    path('', DocListView.as_view(), name='doc_list'),
+    path('manage/', AdminDocListView.as_view(), name='docs_manage'),
     path('create/', doc_create, name='doc_create'),
     path('<int:doc_id>/', doc_detail, name='doc_detail'),
     path('sign', doc_sign, name='doc_sign'),
     path('<int:doc_id>/edit/', doc_edit, name='doc_edit'),
+    path('<int:doc_id>/remove/', doc_remove, name='doc_remove'),
     path('category/', category_list, name='category_list'),
     path('category/create/', category_create, name='category_create'),
     path('category/<slug:slug>/', category_detail, name='category_detail'),

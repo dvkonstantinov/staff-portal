@@ -60,7 +60,7 @@
         <div class="card">
           <div class="card-body p-4">
             <h4 class="card-title">Добавление группы</h4>
-            <button class="btn btn-primary edit-modal-open"
+            <button class="btn btn-primary create-modal-open"
                     data-endpoint="{% url 'users:group_add' %}">Добавить
               группу
             </button>
@@ -111,11 +111,17 @@
       jQuery(document).ready(function ($) {
           const GroupEditModal = new bootstrap.Modal(document.getElementById
           ('groupEditModal'))
-          let link = $('.edit-modal-open')
-          link.click(function () {
+          let updateLink = $('.edit-modal-open')
+          let createLink = $('.create-modal-open')
+          updateLink.click(function () {
               endpoint = $(this).attr('data-endpoint')
               GroupEditModal.show()
-              loadFormContentAjax()
+              loadFormContentAjax('Изменение группы')
+          });
+          createLink.click(function () {
+              endpoint = $(this).attr('data-endpoint')
+              GroupEditModal.show()
+              loadFormContentAjax('Добавление группы')
           });
 
 
@@ -124,7 +130,7 @@
           let modalTitle = document.querySelector('#modalTitle')
           let endpoint
 
-          function loadFormContentAjax() {
+          function loadFormContentAjax(title) {
               $.ajax({
                   type: 'get',
                   url: endpoint,
@@ -132,7 +138,7 @@
                       modalBody.innerHTML = '';
                       modalBody.innerHTML = response;
                       let groupForm = $(modalBody).find('form');
-                      modalTitle.innerHTML = 'Управление группой';
+                      modalTitle.innerHTML = title;
                       modalSubmit.setAttribute('form', groupForm.attr('id'));
                   },
                   error: function (response) {
@@ -166,27 +172,6 @@
           }
 
           $(modalSubmit).on('click', GroupPostAjax);
-
-
-          function NewFormAjax() {
-              $.ajax({
-                  type: 'get',
-                  url: endpoint,
-                  success: function (response) {
-                      modalBody.innerHTML = '';
-                      modalBody.innerHTML = response;
-                      let groupForm = $(modalBody).find('form');
-                      modalTitle.innerHTML = 'Добавление новой группы';
-                      modalSubmit.setAttribute('form', groupForm.attr('id'));
-                  },
-                  error: function (response) {
-                      console.log(response);
-                      modalBody.innerHTML = 'Произошла ошибка. Попробуйте ' +
-                          'позднее или обратитесь к администратору';
-                      $(modalSubmit).addClass('d-none');
-                  }
-              });
-          }
 
           function GroupFormError(response, form) {
               form.find('div.invalid-feedback').remove()
