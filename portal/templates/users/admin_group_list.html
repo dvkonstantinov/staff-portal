@@ -28,21 +28,46 @@
                   <th scope="col">Название</th>
                   <th scope="col">Slug</th>
                   <th scope="col" class="text-center">Ред.</th>
+                  <th scope="col" class="text-center">Удалить</th>
                 </tr>
                 </thead>
                 <tbody>
                 {% for group in page_obj %}
                   <tr>
                     <th class="group-id" scope="row">{{ group.id }}</th>
-                    <td>{{ group.title }}</td>
+                    <td>
+                      {% if group.id != 1 %}
+                        <a
+                            class="edit-modal-open group-title"
+                            role="button"
+                            data-endpoint="
+{% url 'users:group_edit' group_id=group.id %}">
+                          {{ group.title }}
+                        </a>
+                      {% else %}
+                        {{ group.title }}
+                      {% endif %}
+                    </td>
                     <td scope="row">{{ group.slug }}</td>
                     <td class="text-center">
-                      <a
-                          class="bi bi-pencil-fill edit-modal-open"
-                          role="button"
-                          data-endpoint="
+                      {% if group.id != 1 %}
+                        <a
+                            class="bi bi-pencil-fill edit-modal-open"
+                            role="button"
+                            data-endpoint="
 {% url 'users:group_edit' group_id=group.id %}">
-                      </a>
+                        </a>
+                      {% endif %}
+                    </td>
+                    <td class="text-center">
+                      {% if group.id != 1 %}
+                        <a
+                            class="bi bi-x-lg remove-modal-open"
+                            role="button"
+                            data-endpoint="
+{% url 'users:group_remove' group_id=group.id %}">
+                        </a>
+                      {% endif %}
                     </td>
                   </tr>
                 {% endfor %}
@@ -91,7 +116,6 @@
                   aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          123
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary"
@@ -104,6 +128,29 @@
       </div>
     </div>
   </div>
+  <div class="modal fade" id="groupRemoveModal" tabindex="-1"
+       aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="modalRemoveTitle">Удаление
+            группы</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary"
+                  data-bs-dismiss="modal">Закрыть
+          </button>
+          <button id="modalRemoveSubmit" type="button" class="btn
+          btn-primary">Удалить
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}
 
 {% block page_scripts %}
@@ -111,8 +158,20 @@
       jQuery(document).ready(function ($) {
           const GroupEditModal = new bootstrap.Modal(document.getElementById
           ('groupEditModal'))
+          const GroupRemoveModal = new bootstrap.Modal(document.getElementById
+          ('groupRemoveModal'))
           let updateLink = $('.edit-modal-open')
           let createLink = $('.create-modal-open')
+          let removeLink = $('.remove-modal-open')
+          let modalBody = document.querySelector('#groupEditModal ' +
+              '.modal-body');
+          let modalSubmit = document.querySelector('#modalSubmit');
+          let modalTitle = document.querySelector('#modalTitle');
+          let endpoint;
+          let modalRemoveBody = document.querySelector('#groupRemoveModal ' +
+              '.modal-body');
+          let modalRemoveSubmit = document.querySelector('#modalRemoveSubmit');
+
           updateLink.click(function () {
               endpoint = $(this).attr('data-endpoint')
               GroupEditModal.show()
@@ -123,12 +182,50 @@
               GroupEditModal.show()
               loadFormContentAjax('Добавление группы')
           });
+          removeLink.click(function () {
+              endpoint = $(this).attr('data-endpoint')
+              let grTitle = $(this).parent().parent().find('a' +
+                  '.group-title').text();
+              modalRemoveBody.innerHTML = '<p>Вы уверены, что хотите ' +
+                  'удалить группу' + grTitle + '</p>'
+              modalRemoveSubmit.classList.remove('d-none')
+              GroupRemoveModal.show()
+          });
 
 
-          let modalBody = document.querySelector('#groupEditModal .modal-body')
-          let modalSubmit = document.querySelector('#modalSubmit')
-          let modalTitle = document.querySelector('#modalTitle')
-          let endpoint
+          $(modalSubmit).on('click', GroupPostAjax);
+          $(modalRemoveSubmit).on('click', GroupRemoveAjax);
+
+          function GroupRemoveAjax(e) {
+              e.preventDefault();
+              let data = new FormData();
+              data.append('csrfmiddlewaretoken', csrftoken)
+              $.ajax({
+                  data: data,
+                  type: 'post',
+                  url: endpoint,
+                  cache: false,
+                  processData: false,
+                  contentType: false,
+                  success: function (response) {
+                      modalRemoveBody.innerHTML = '<p>Группа успешно удалена' +
+                          '. ' +
+                          'Обновите страницу, чтобы в этом убедиться</p>';
+                      showToast('text-bg-success', 'Успешно', 'Группа ' +
+                          'успешно удалена');
+                  },
+                  error: function (response) {
+                      let errors = response['responseJSON']['errors'];
+                      modalRemoveBody.innerHTML = '<p>' + errors + '</p>';
+                      showToast('text-bg-danger', 'Неудачно', 'Неудачная ' +
+                          'попытка удаления группы');
+                  },
+                  complete: function (response) {
+                      console.log(response)
+                      $(modalRemoveSubmit).addClass('d-none');
+                  }
+              });
+          }
 
           function loadFormContentAjax(title) {
               $.ajax({
@@ -163,15 +260,17 @@
                   success: function (response) {
                       console.log(response)
                       GroupFormSuccess(modalSubmit)
+                      showToast('text-bg-success', 'Успешно', 'Группа ' +
+                          'успешно сохранена');
                   },
                   error: function (response) {
                       console.log(response)
                       GroupFormError(response, form)
+                      showToast('text-bg-danger', 'Неудачно', 'Неудачная ' +
+                          'попытка сохранения группы');
                   }
               });
           }
-
-          $(modalSubmit).on('click', GroupPostAjax);
 
           function GroupFormError(response, form) {
               form.find('div.invalid-feedback').remove()

@@ -43,12 +43,12 @@
                   {% if user.profile.job %}
                     <p class="me-3 mb-2">{{ user.profile.job }}</p>
                   {% endif %}
-                  <h6 class="me-3"><a href="#">{{ user.group }}</a></h6>
+                  <p class="me-3 mb-0 small">{{ user.group }}</p>
                 </div>
               </div>
               <div
                   class="arrow-block d-flex align-items-center justify-content-between">
-                <p class="last-seen">Последний визит: <br>
+                <p class="last-seen small">Последний визит: <br>
                   {% if user.last_activity %}
                     {{ user.last_activity }}
                   {% else %}
@@ -56,7 +56,7 @@
                   {% endif %}
                 </p>
                 <a href="{% url 'users:user_profile' user_id=user.id %}"
-                   class="bi bi-arrow-right-square"></a>
+                   class="bi bi-arrow-right-short small"></a>
               </div>
             </div>
 
@@ -66,9 +66,6 @@
             </div>
         {% endfor %}
       </div>
-
-    </div>
-    <div class="row">
 
     </div>
 

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% load user_filters %}
-{% block title %}Список пользователей{% endblock %}
+{% block title %}Список документов{% endblock %}
 {% block content %}
 
   <div class="pagetitle">
@@ -16,8 +16,8 @@
   </div>
 
   <section class="section profile">
-    <div class="row d-flex  flex-lg-row flex-column">
-    <div class="col-xl-3 col-lg-5 col-md-12">
+    <div class="row d-flex  flex-lg-row flex-column-reverse">
+      <div class="col-xl-3 col-lg-5 col-md-12">
         <div class="card">
           <div class="card-body"><h5 class="card-title">Фильтры и
             сортировка</h5>
@@ -47,13 +47,25 @@
             <hr class="m-0 d-none d-xl-block">
             {% for doc in page_obj %}
               <div class="row pb-2 pt-2 d-flex flex-xl-row">
-                <div class="col-12 col-xl-1 id"><span>{{ doc.id }}</span></div>
-                <div class="col-12 col-xl-6 title"><a href="
-{% url 'docs:doc_detail' doc_id=doc.id %}">
-                  {{ doc.title }}</a></div>
-                <div class="col-12 col-xl-2 cat"><a href="#">
-                  {{ doc.category.title }}</a></div>
-                <div class="col-12 col-xl-3 status"><span>
+                <div class="col-12 col-sm-1 id">
+                  <span class="d-sm-none">Номер документа:</span>
+                  <span>{{ doc.id }}</span>
+                </div>
+                <div class="col-12 col-sm-6 title">
+                  <span class="d-sm-none">Название:</span>
+                  <a href="{% url 'docs:doc_detail' doc_id=doc.id %}">
+                    {{ doc.title }}
+                  </a>
+                </div>
+                <div class="col-12 col-sm-2 cat">
+                  <span class="d-sm-none">Категория:</span>
+                  <span>
+                  {{ doc.category.title }}
+                  </span>
+                </div>
+                <div class="col-12 col-sm-3 status">
+                  <span class="d-sm-none">Статус:</span>
+                  <span>
                   {% if not doc.for_signing %}
                     К ознакомлению
                   {% else %}
@@ -63,7 +75,14 @@
                       К подписанию
                     {% endif %}
                   {% endif %}
-                </span></div>
+                </span>
+                </div>
+              <div class="col-12 d-sm-none">
+                <a  href="{% url 'docs:doc_detail' doc_id=doc.id %}"
+                    class="btn btn-primary">
+                  Посмотреть
+                </a>
+              </div>
               </div>
               {% if not forloop.last %}
                 <hr class="m-0">{% endif %}

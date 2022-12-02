@@ -3,7 +3,7 @@ from django.urls import path
 from core.decorators import adminuser_required
 from users.views import user_profile, upload_avatar, remove_avatar, \
     UserListView, AdminUserListView, admin_user_profile, AdminGroupListView, \
-    admin_group_edit, admin_group_add
+    admin_group_edit, admin_group_add, admin_group_remove
 
 app_name = 'users'
 
@@ -18,5 +18,7 @@ urlpatterns = [
     path('groups/', adminuser_required(AdminGroupListView.as_view()),
          name='group_manage'),
     path('groups/<int:group_id>/', admin_group_edit, name='group_edit'),
+    path('groups/<int:group_id>/remove/', admin_group_remove,
+         name='group_remove'),
     path('groups/new/', admin_group_add, name='group_add'),
 ]

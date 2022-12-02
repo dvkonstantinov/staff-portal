@@ -56,6 +56,7 @@
         {% if user.is_authenticated %}id="footer"{% endif %}>
   {% include 'inc/_footer.html' %}
 </footer>
+{% include 'inc/_toast.html'  %}
 <script
     src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 {#<script src="{% static 'vendor/bootstrap/js/bootstrap.min.js' %}"></script>#}
@@ -71,10 +72,9 @@
 {#<script src="{% static 'vendor/php-email-form/validate.js' %}"></script>#}
 <script
     src="{% static 'vendor/jqueryuploader/jquery.dm-uploader.min.js' %}"></script>
-">
 <script src="{% static 'vendor/cropperjs/cropper.min.js' %}"></script>
 <script src="{% static 'js/main.js' %}"></script>
 <script src="{% static 'js/script.js' %}"></script>
-{% block page_scripts  %}{% endblock  %}
+{% block page_scripts %}{% endblock %}
 </body>
 </html>

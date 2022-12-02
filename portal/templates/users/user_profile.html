@@ -34,10 +34,24 @@
               <h3>{{ user.profile.job }}</h3>
             {% endif %}
             <div class="social-links mt-2">
-              <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
-              <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
-              <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
-              <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></a>
+            {% if user.profile.telegram %}
+              <a href="#">
+                <i class="bi bi-telegram"
+                   data-toggle="tooltip"
+                   title="Телеграм"></i></a>
+            {% endif %}
+            {% if user.profile.phone %}
+              <a href="#">
+                <i class="bi bi-telephone-fill"
+                   data-toggle="tooltip"
+                   title="Телефон"></i></a>
+            {% endif %}
+              {% if user.email %}
+              <a href="#">
+                <i class="bi bi-envelope-fill"
+                   data-toggle="tooltip"
+                   title="Рабочий Email"></i></a>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -453,9 +467,13 @@
                       console.log(response)
                       ChangePassFormSuccess(password_change_form)
                       password_change_form[0].reset()
+                      showToast('text-bg-success', 'Успешно', 'Пароль ' +
+                          'успешно обновлен')
                   },
                   error: function (response) {
                       ChangePassFormError(response, password_change_form)
+                      showToast('text-bg-danger', 'Неудачно', 'Неудачная ' +
+                          'попытка обновления пароля')
                   }
               });
               return false;
@@ -533,9 +551,6 @@
                   console.log('onDragLeave');
 
               },
-              // onInit: function () {
-              //   console.log('onInit')
-              // },
               onNewFile: function (id, file) {
                   console.log('onNewFile');
                   let preview = document.getElementById('imagepreview');
@@ -606,8 +621,6 @@
               return false;
           });
       });
-
-
 
 
       function avatarTextInputter(text) {

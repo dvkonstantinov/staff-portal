@@ -11,6 +11,7 @@ class DocFilter(django_filters.FilterSet):
     title = django_filters.CharFilter(method='doc_title_search')
     add_date = django_filters.CharFilter(method='sort')
     status = django_filters.CharFilter(method='status_search')
+    category = django_filters.CharFilter(lookup_expr='exact')
 
     def doc_title_search(self, queryset, name, value):
         queryset = queryset.filter(title__icontains=value)
@@ -36,3 +37,7 @@ class DocFilter(django_filters.FilterSet):
         elif value == 'to-view':
             queryset = queryset.filter(for_signing=False)
             return queryset
+
+
+class CategoryFilter(django_filters.FilterSet):
+    pass

@@ -8,7 +8,8 @@ User = get_user_model()
 
 
 class Document(models.Model):
-    title = models.CharField(max_length=300, verbose_name='Название')
+    title = models.CharField(max_length=300, verbose_name='Название',
+                             db_index=True)
     description = models.TextField(verbose_name='Описание документа')
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True,
@@ -18,9 +19,11 @@ class Document(models.Model):
     file = models.FileField(upload_to='documents/',
                             verbose_name='Файл')
     category = models.ForeignKey('Category',
-                                 on_delete=models.CASCADE,
+                                 on_delete=models.PROTECT,
                                  related_name='documents',
-                                 to_field='slug')
+                                 to_field='slug',
+                                 blank=True,
+                                 null=True)
     tag = models.ManyToManyField('Tag',
                                  related_name='documents',
                                  blank=True)
@@ -31,6 +34,8 @@ class Document(models.Model):
     signed = models.ManyToManyField(User,
                                     related_name='signed_documents',
                                     blank=True)
+    is_for_deleting = models.BooleanField(verbose_name='Помечен на удаление',
+                                          default=False)
 
     def __str__(self):
         return self.title
@@ -65,14 +70,17 @@ class Category(MPTTModel):
         on_delete=models.CASCADE
     )
 
-    def __str__(self):
-        full_path = [self.title]
-        k = self.parent
-        while k is not None:
-            full_path.append(k.title)
-            k = k.parent
+    # def __str__(self):
+    #     full_path = [self.title]
+    #     k = self.parent
+    #     while k is not None:
+    #         full_path.append(k.title)
+    #         k = k.parent
+    #
+    #     return ' -> '.join(full_path[::-1])
 
-        return ' -> '.join(full_path[::-1])
+    def __str__(self):
+        return self.title
 
     class Meta:
         unique_together = ['slug', 'parent']

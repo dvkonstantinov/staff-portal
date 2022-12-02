@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.tokens import default_token_generator
-from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_http_methods
@@ -21,15 +20,14 @@ User = get_user_model()
 
 account_activation_token = default_token_generator
 
-USERS_PER_PAGE = 1
-
 
 class UserListView(LoginRequiredMixin, FilterView):
     model = User
     template_name = 'users/user_list.html'
-    paginate_by = USERS_PER_PAGE
+    paginate_by = 10
     filterset_class = UserFilter
-    queryset = User.objects.filter(is_active=True, verified=True)
+    queryset = User.objects.select_related('profile', 'group').filter(
+        is_active=True, verified=True)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -83,8 +81,6 @@ def remove_avatar(request):
     if request.method == 'POST':
         default_photo = Profile._meta.get_field('photo').get_default()
         default_thumb = Profile._meta.get_field('thumbnail').get_default()
-        print(default_photo)
-        print(default_thumb)
         profile = Profile.objects.get(user=request.user)
         profile.photo = default_photo
         profile.thumbnail = default_thumb
@@ -95,10 +91,10 @@ def remove_avatar(request):
 
 
 class AdminUserListView(UserListView):
-    queryset = User.objects.all()
+    queryset = User.objects.select_related('group').filter(is_superuser=False)
     template_name = 'users/admin_user_list.html'
     filterset_class = AdminUserFilter
-    paginate_by = 1
+    paginate_by = 10
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -141,7 +137,6 @@ def admin_group_edit(request, group_id):
     group = get_object_or_404(Group, pk=group_id)
     if request.method == 'POST':
         form = AdminGroupEditAddForm(request.POST or None, instance=group)
-        print(form.data)
         if form.is_valid():
             data = {'message': 'success'}
             form.save()
@@ -163,7 +158,6 @@ def admin_group_edit(request, group_id):
 def admin_group_add(request):
     if request.method == 'POST':
         form = AdminGroupEditAddForm(request.POST or None)
-        print(form.data)
         if form.is_valid():
             data = {'message': 'success'}
             form.save()
@@ -178,3 +172,20 @@ def admin_group_add(request):
     }
     return render(request, 'users/forms/admin_group_edit_form.html',
                   context=context)
+
+
+@adminuser_required
+@require_http_methods(["POST"])
+def admin_group_remove(request, group_id):
+    try:
+        group = Group.objects.get(id=group_id)
+    except Group.DoesNotExist:
+        data = {'errors': 'Группа не существует. Возможно она уже удалена '
+                          'или не была создана'}
+        return JsonResponse(data, status=404)
+    if group.title == 'Без группы' or group.id == 1 or group.slug == 'none':
+        data = {'errors': 'Нельзя удалить группу по умолчанию'}
+        return JsonResponse(data, status=400)
+    group.delete()
+    data = {'message': 'success'}
+    return JsonResponse(data, status=200)

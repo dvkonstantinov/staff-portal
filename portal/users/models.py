@@ -1,5 +1,3 @@
-import sys
-
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.validators import UnicodeUsernameValidator
@@ -110,10 +108,10 @@ class Profile(models.Model):
                                 verbose_name='Пользователь',
                                 related_name='profile')
     photo = models.ImageField(upload_to='profile_photos/full/',
-                              default='profile_photos/full/default.jpg',
+                              default='profile_photos/default/default-avatar.jpg',
                               verbose_name='Фото')
     thumbnail = models.ImageField(upload_to='profile_photos/thumbs/',
-                                  default='profile_photos/thumbs/default.jpg',
+                                  default='profile_photos/default/default-avatar.jpg',
                                   verbose_name='Миниатюра')
     job = models.CharField(max_length=300, verbose_name='Должность',
                            blank=True, null=True)

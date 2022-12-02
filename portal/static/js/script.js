@@ -12,7 +12,7 @@ jQuery(document).ready(function ($) {
     })
     $('#clearSearch').click(function (e) {
         e.preventDefault();
-        document.location.href  = clearLocation;
+        document.location.href = clearLocation;
     });
 });
 
@@ -34,6 +34,14 @@ function getCookie(name) {
 const csrftoken = getCookie('csrftoken');
 
 
-// document.querySelector('#clearSearch').addEventListener() = function() {
-//     document.location.href =
-// }
+function showToast(klass, title, body) {
+    let toaster = document.getElementById('toast');
+    toaster.classList.remove('text-bg-primary', 'text-bg-secondary', 'text-bg-success', 'text-bg-danger', 'text-bg-warning', 'text-bg-info', 'text-bg-light', 'text-bg-dark', );
+    toaster.classList.add(klass);
+    toaster.querySelector('.toast-title').innerHTML = title;
+    toaster.querySelector('.toast-body').innerHTML = body;
+    let visibleToast = new bootstrap.Toast(toaster, {'autohide': true,
+        'delay': 5000});
+    visibleToast.show();
+}
+

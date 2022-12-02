@@ -39,7 +39,7 @@
               </div>
               <div class="col-xl-9">
                 <h3>{{ doc.title }}</h3>
-                <p>Категория: {{ doc.category.title }}</p>
+                <p class="small">Категория: {{ doc.category.title }}</p>
                 {% if doc.for_signing %}
                   {% if doc in request.user.signed_documents.all %}
                     <div id="docStatus" class="alert alert-info">Вы подписали
@@ -47,15 +47,18 @@
                       документ
                     </div>
                   {% else %}
-                    <div id="docStatus" class="alert alert-warning">Документ нужно подписать
+                    <div id="docStatus" class="alert alert-warning">Документ
+                      нужно подписать
                     </div>
                   {% endif %}
                 {% else %}
-                  <div id="docStatus" class="alert alert-secondary">К ознакомлению,
+                  <div id="docStatus" class="alert alert-secondary">К
+                    ознакомлению,
                     подписывать
                     не нужно
                   </div>
                 {% endif %}
+                <p>{{ doc.description }}</p>
                 <h5 class="">Просмотр документа</h5>
                 {% if extention == 'PDF' %}
                   <button type="button"
@@ -94,6 +97,7 @@
       </div>
     </div>
   </section>
+  {% if extention == 'PDF' %}
   <div class="modal fade" id="docModal" tabindex="-1"
        aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-fullscreen">
@@ -131,6 +135,7 @@
       </div>
     </div>
   </div>
+  {% endif %}
 {% endblock %}
 
 {% block page_scripts %}
@@ -210,6 +215,8 @@
                           $('#docStatus').removeClass('alert-warning')
                               .addClass('alert-info').text('Вы подписали ' +
                               'этот документ')
+                          showToast('text-bg-success', 'Успешно', 'Вы ' +
+                              'подписали документ')
                       },
                       error: function (response) {
                           console.log(response)

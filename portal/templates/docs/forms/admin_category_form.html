@@ -1,0 +1,36 @@
+<form id="CategoryEditForm" method="post">
+  {% include 'inc/forms/_form_nonfield_errors.html' %}
+  {% for field in form %}
+    <div class="row mb-3"
+        {% if field.field.required %}
+         aria-required="true"
+        {% else %}
+         aria-required="false"
+        {% endif %}
+    >
+      <label for="{{ field.id_for_label }}"
+             class="col-12 col-form-label">
+        {{ field.label }}
+        {% if field.field.required %}
+          <span class="required text-danger">*</span>
+        {% endif %}
+      </label>
+      <div class="col-12">
+        {% if field.field.widget.input_type == 'checkbox' %}
+          <div class="form-check form-switch">
+            {{ field }}
+          </div>
+        {% else %}
+          {{ field }}
+        {% endif %}
+      </div>
+      {% include 'inc/forms/_form_field_errors.html' %}
+      {% if field.help_text %}
+        <small id="{{ field.id_for_label }}-help" class="form-text
+                    text-muted">
+          {{ field.help_text|safe }}
+        </small>
+      {% endif %}
+    </div>
+  {% endfor %}
+</form>

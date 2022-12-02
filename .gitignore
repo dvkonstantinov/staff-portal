@@ -134,4 +134,6 @@ dmypy.json
 
 admin/
 sent_emails/
-/portal/media/
+/portal/media/documents/
+/portal/media/profile_photos/full
+/portal/media/profile_photos/thumbs

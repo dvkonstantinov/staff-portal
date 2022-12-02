@@ -12,7 +12,6 @@ REGISTER_SORT_CHOICES = (
 
 
 class UserForm(forms.ModelForm):
-
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'patronymic', 'group']
@@ -25,7 +24,6 @@ class UserForm(forms.ModelForm):
 
 
 class UserProfileForm(forms.ModelForm):
-
     class Meta:
         model = Profile
         fields = ['job', 'about', 'personal_email', 'birthday', 'phone',
@@ -51,6 +49,14 @@ class UserSearchForm(forms.Form):
                                               attrs={'class': 'form-select',
                                                      'name': 'date'}
                                           ))
+    group = forms.ModelChoiceField(Group.objects.all(),
+                                   label='Группа',
+                                   required=False,
+                                   empty_label='Все',
+                                   widget=forms.Select(
+                                       attrs={'class': 'form-select',
+                                              'name': 'group'}
+                                   ))
 
 
 ACTIVITY_SORT_CHOICES = (

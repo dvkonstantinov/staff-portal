@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% load static %}
 {% load user_filters %}
-{% block title %}Список пользователей{% endblock %}
+{% block title %}Управление документами{% endblock %}
 {% block content %}
 
   <div class="pagetitle">
-    <h1>Руководящие документы</h1>
+    <h1>Управление документами</h1>
     <nav>
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{% url 'main:home_page' %}"><i
@@ -30,6 +30,7 @@
                     <th scope="col">Категория</th>
                     <th scope="col">Дата</th>
                     <th scope="col">Загрузил</th>
+                    <th class="text-center">Подписали</th>
                     <th class="text-center">Изменить</th>
                     <th class="text-center">Удалить</th>
                   </tr>
@@ -38,23 +39,31 @@
                   {% for doc in page_obj %}
                     <tr>
                       <th scope="row">{{ doc.id }}</th>
-                      <td><a
-                          class="edit-modal-open document-title"
-                          role="button"
-                          data-endpoint="{% url 'docs:doc_edit' doc_id=doc.id %}"
-                      >{{ doc.title }}</a>
+                      <td>
+                        <a
+                            class="edit-modal-open document-title"
+                            role="button"
+                            data-endpoint="{% url 'docs:doc_edit' doc_id=doc.id %}"
+                        >{{ doc.title }}</a>
                       </td>
-                      <td>{{ doc.category }}</td>
+                      <td>{{ doc.category.title }}</td>
                       <td>{{ doc.created_at }}</td>
                       <td>{{ user.email }}</td>
-                      <td class=" text-center">
+                      <td class="text-center">
+                        <a
+                            class="bi bi-eye-fill signers-popup-open"
+                            role="button"
+                            data-endpoint="{% url 'docs:doc_signers' doc_id=doc.id %}"
+                        ></a>
+                      </td>
+                      <td class="text-center">
                         <a
                             class="bi bi-pencil-fill edit-modal-open"
                             role="button"
                             data-endpoint="{% url 'docs:doc_edit' doc_id=doc.id %}"
                         ></a>
                       </td>
-                      <td class=" text-center">
+                      <td class="text-center">
                         <a
                             class="bi bi-x-lg remove-modal-open"
                             role="button"
@@ -156,6 +165,92 @@
       </div>
     </div>
   </div>
+
+  <div class="modal fade" id="signersModal" tabindex="-1"
+       aria-labelledby="signersModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="signersModalTitle">Подписавшие
+            документ</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <ul class="nav nav-tabs d-flex" role="tablist">
+            <li class="nav-item flex-fill" role="presentation">
+              <button class="nav-link w-100"
+                      id="signedTab"
+                      data-bs-toggle="tab"
+                      data-bs-target="#signedUsers"
+                      type="button" role="tab"
+                      aria-selected="false"
+                      tabindex="-1">
+                Подписали
+              </button>
+            </li>
+            <li class="nav-item flex-fill" role="presentation">
+              <button class="nav-link w-100 active"
+                      id="profile-tab"
+                      data-bs-toggle="tab"
+                      data-bs-target="#notSignedUsers"
+                      type="button"
+                      role="tab"
+                      aria-selected="true">
+                Не подписали
+              </button>
+            </li>
+          </ul>
+          <div class="tab-content pt-3" id="SignedTabs">
+            <div class="tab-pane fade table-responsive"
+                 id="signedUsers"
+                 role="tabpanel">
+              <table class="table table-striped">
+                <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Имя</th>
+                  <th scope="col">Почта</th>
+                </tr>
+                </thead>
+                <tbody id="signedUsersContent">
+                <tr>
+                  <td class="text-center" colspan="4">Пользователи не найдены
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="tab-pane fade table-responsive active show"
+                 id="notSignedUsers"
+                 role="tabpanel">
+              <table class="table table-striped">
+                <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Имя</th>
+                  <th scope="col">Почта</th>
+                </tr>
+                </thead>
+                <tbody id="notSignedUsersContent">
+                <tr>
+                  <td class="text-center" colspan="4">Пользователи не найдены
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary"
+                  data-bs-dismiss="modal">
+            Закрыть
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}
 
 {% block page_scripts %}
@@ -205,6 +300,7 @@
 
           const docEditModal = new bootstrap.Modal(document.getElementById('docEditModal'))
           const docRemoveModal = new bootstrap.Modal(document.getElementById('docRemoveModal'))
+          let signersModal = new bootstrap.Modal(document.getElementById('signersModal'))
           let updateLink = $('.edit-modal-open')
           let createLink = $('.create-modal-open')
           let removeLink = $('.remove-modal-open')
@@ -215,6 +311,9 @@
           let modalEditTitle = document.querySelector('#modalEditTitle')
           let modalEditClose = document.querySelector('#modalEditClose')
           let modalRemoveClose = document.querySelector('#modalRemoveClose')
+
+          let signersLink = $('.signers-popup-open')
+
 
           let endpoint
 
@@ -231,12 +330,20 @@
               loadFormContentAjax('Добавить новый документ');
           });
           removeLink.click(function () {
+              $(modalRemoveClose).text('Отмена')
+              $(modalRemoveSubmit).removeClass('d-none');
               endpoint = $(this).attr('data-endpoint');
               docRemoveModal.show();
               let docTitle = $(this).parent().parent().find('a' +
                   '.document-title').text();
               modalRemoveBody.innerHTML = '<p>Вы уверены, что хотите удалить' +
                   ' документ ' + docTitle + '</p>';
+          });
+          signersLink.click(function () {
+              endpoint = $(this).attr('data-endpoint');
+              modalEditSubmit.classList.remove('d-none');
+              signersModal.show();
+              loadSigners();
           });
           modalEditClose.addEventListener
           ('click', function () {
@@ -249,6 +356,70 @@
 
           $(modalEditSubmit).on('click', DocPostAjax);
           $(modalRemoveSubmit).on('click', DocRemoveAjax);
+
+          function loadSigners() {
+              let data = new FormData();
+              data.append('csrfmiddlewaretoken', csrftoken)
+              let signedUsersContent = document.querySelector
+              ('#signedUsersContent')
+              let notSignedUsersContent = document.querySelector
+              ('#notSignedUsersContent')
+              $.ajax({
+                  data: data,
+                  type: 'get',
+                  url: endpoint,
+                  cache: false,
+                  processData: false,
+                  contentType: false,
+                  success: function (response) {
+                      signedUsersContent.innerHTML = ''
+                      notSignedUsersContent.innerHTML = ''
+                      let jsonObj = JSON.parse(JSON.stringify(response));
+                      let signed = jsonObj['signed_users'];
+                      let notSigned = jsonObj['unsigned_users'];
+                      if (signed.length == 0) {
+                          signedUsersContent.innerHTML = '<tr><td ' +
+                              'class="text-center"  colspan="4"> ' +
+                              'Пользователи не найдены</td></tr>'
+                      } else {
+                          for (let item of Object.keys(signed)) {
+                              let tr_el = document.createElement('tr')
+                              tr_el.innerHTML = '' +
+                                  '<td>' + signed[item]['id'] + '</td>' +
+                                  '<td>' + signed[item]['first_name'] + ' ' + signed[item]['last_name'] + '</td>' +
+                                  '<td>' + signed[item]['email'] + '</td>';
+                              signedUsersContent.appendChild(tr_el)
+                          }
+                      }
+                      if (notSigned.length == 0) {
+                          notSignedUsersContent.innerHTML = '<tr><td ' +
+                              'class="text-center"  colspan="4"> ' +
+                              'Пользователи не найдены</td></tr>'
+                      } else {
+                          for (let item of Object.keys(notSigned)) {
+                              let tr_el = document.createElement('tr')
+                              tr_el.innerHTML = '' +
+                                  '<td>' + notSigned[item]['id'] + '</td>' +
+                                  '<td>' + notSigned[item]['first_name'] + ' ' + notSigned[item]['last_name'] + '</td>' +
+                                  '<td>' + notSigned[item]['email'] + '</td>';
+                              notSignedUsersContent.appendChild(tr_el)
+                          }
+                      }
+                  },
+                  error: function (response) {
+                      let errText = '<tr><td ' +
+                          'class="text-center"  colspan="4"> ' +
+                          'Произошла ошибка загрузки контента</td></tr>'
+                      signedUsersContent.innerHTML = errText
+                      notSignedUsersContent.innerHTML = errText
+                      showToast('text-bg-danger', 'Неудачно', 'Неудачная ' +
+                          'попытка загрузки контента')
+                  },
+                  complete: function (response) {
+                      console.log(response)
+                  }
+              });
+          }
 
           function loadFormContentAjax(title) {
               $.ajax({
@@ -269,6 +440,8 @@
                           'позднее или обратитесь к администратору';
                       $(modalEditSubmit).addClass('d-none');
                       modalRemoveClose.textContent = 'Закрыть'
+                      showToast('text-bg-danger', 'Неудачно', 'Неудачная ' +
+                          'попытка загрузки контента')
                   }
               });
           }
@@ -285,15 +458,21 @@
                   processData: false,
                   contentType: false,
                   success: function (response) {
-                      console.log(response)
-                      modalRemoveBody.innerHTML = response;
-                      $(modalRemoveSubmit).addClass('d-none');
+                      modalRemoveBody.innerHTML = '<p>Документ успешно удален. Обновите страницу, чтобы в этом убедиться</p>';
+                      showToast('text-bg-success', 'Успешно', 'Документ ' +
+                          'успешно удален')
                   },
-                  error: function (response) {
-                      console.log(response)
-                      modalEditBody.innerHTML = 'Произошла ошибка. Попробуйте ' +
+                  error: function () {
+                      modalRemoveBody.innerHTML = 'Произошла ошибка. Попробуйте ' +
                           'позднее или обратитесь к администратору';
-                      $(modalEditSubmit).addClass('d-none');
+
+                      showToast('text-bg-danger', 'Неудачно', 'Неудачная ' +
+                          'попытка удаления документа')
+                  },
+                  complete: function (response) {
+                      console.log(response)
+                      $(modalRemoveClose).text('Закрыть')
+                      $(modalRemoveSubmit).addClass('d-none');
                   }
               });
           }
@@ -313,10 +492,14 @@
                   success: function (response) {
                       console.log(response)
                       DocFormSuccess(modalEditSubmit)
+                      showToast('text-bg-success', 'Успешно', 'Документ ' +
+                          'успешно обновлен')
                   },
                   error: function (response) {
                       console.log(response)
                       DocFormError(response, form)
+                      showToast('text-bg-danger', 'Неудачно', 'Неудачная ' +
+                          'попытка обновления документа')
                   }
               });
           }
@@ -346,14 +529,10 @@
 
           function DocFormSuccess(btn) {
               modalEditBody.innerHTML = '<p>Документ успешно сохранен. ' +
-                  'Обновите страницу чтобы его увидеть</p>'
-              $(btn).toggleClass('btn-primary btn-success').html('Сохранено ' +
-                  '<i ' + 'class="bi bi-check-circle"></i>')
-              setTimeout(function () {
-                  $(btn).toggleClass('btn-primary btn-success').html
-                  ('Сохранить').addClass('d-none')
-              }, 1000);
-          };
+                  'Обновите страницу чтобы его увидеть</p>';
+              $(btn).addClass('d-none')
+          }
+
 
       });
 

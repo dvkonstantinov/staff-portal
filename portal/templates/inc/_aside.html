@@ -6,7 +6,7 @@
       <i class="bi bi-grid"></i>
       <span>Dashboard</span>
     </a>
-  </li><!-- End Dashboard Nav -->
+  </li>
   {% if request.user.is_staff or request.user.is_admin %}
     <li class="nav-item">
       <a class="nav-link collapsed" data-bs-target="#admin-nav"
@@ -27,12 +27,22 @@
           </a>
         </li>
         <li>
+          <a href="{% url 'users:group_manage' %}">
+            <i class="bi bi-circle"></i><span>Назначение групп</span>
+          </a>
+        </li>
+        <li>
           <a href="{% url 'docs:docs_manage' %}">
             <i class="bi bi-circle"></i><span>Документы</span>
           </a>
         </li>
+        <li>
+          <a href="{% url 'docs:category_manage' %}">
+            <i class="bi bi-circle"></i><span>Категории документов</span>
+          </a>
+        </li>
       </ul>
-    </li><!-- End Components Nav -->
+    </li>
   {% endif %}
   <li class="nav-item">
     <a class="nav-link collapsed" data-bs-target="#forms-nav"

@@ -39,6 +39,15 @@ class DocSearchForm(forms.Form):
                                    attrs={'class': 'form-select',
                                           'name': 'status'}
                                ))
+    category = forms.ModelChoiceField(Category.objects.all(),
+                                    label='Категория',
+                                    required=False,
+                                    to_field_name='title',
+                                    empty_label='Все',
+                                    widget=forms.Select(
+                                        attrs={'class': 'form-select',
+                                               'name': 'category'}
+                                    ))
 
 
 class AdminDocSearchForm(DocSearchForm):
@@ -101,3 +110,27 @@ class AdminDocEditForm(AdminDocCreateForm):
             self.fields['groups'].initial = self.instance.groups.all()
 
 
+class AdminCategoryForm(forms.ModelForm):
+    title = forms.CharField(label='Название категории',
+                            widget=forms.TextInput(
+                                attrs={'class': 'form-control',
+                                       'name': 'title'}
+                            ))
+    slug = forms.SlugField(label='Slug категории',
+                           widget=forms.TextInput(
+                               attrs={'class': 'form-control',
+                                      'name': 'slug'}
+                           ))
+    parent = forms.ModelChoiceField(Category.objects.all(),
+                                    label='Родительская категория',
+                                    required=False,
+                                    to_field_name='slug',
+                                    empty_label='Без родителя',
+                                    widget=forms.Select(
+                                        attrs={'class': 'form-select',
+                                               'name': 'parent'}
+                                    ))
+
+    class Meta:
+        model = Category
+        fields = ['title', 'slug', 'parent']

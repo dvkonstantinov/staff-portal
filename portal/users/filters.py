@@ -8,10 +8,11 @@ User = get_user_model()
 class UserFilter(django_filters.FilterSet):
     name = django_filters.CharFilter(method='fio_search')
     registration_date = django_filters.CharFilter(method='register_sort')
+    group = django_filters.CharFilter(lookup_expr='exact')
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name']
+        fields = ['first_name', 'last_name', 'registration_date', 'group']
 
     def fio_search(self, queryset, name, value):
         for term in value.split(' '):

@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'core',
     'main',
     'docs',
+    "debug_toolbar",
 ]
 
 MIDDLEWARE = [
@@ -42,6 +43,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'users.middleware.UpdateLastActivityMiddleware',
+# дебаггер
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = 'portal.urls'
@@ -113,10 +116,16 @@ EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/auth/login/'
 
-
 # открытие pdf
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # отправка файлов
 # SENDFILE_ROOT = MEDIA_ROOT
 # SENDFILE_BACKEND = "django_sendfile.backends.simple"
+
+# дебаггер
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
+]
