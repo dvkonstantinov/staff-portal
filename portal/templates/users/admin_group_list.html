@@ -36,7 +36,6 @@
                   <tr>
                     <th class="group-id" scope="row">{{ group.id }}</th>
                     <td>
-                      {% if group.id != 1 %}
                         <a
                             class="edit-modal-open group-title"
                             role="button"
@@ -44,30 +43,23 @@
 {% url 'users:group_edit' group_id=group.id %}">
                           {{ group.title }}
                         </a>
-                      {% else %}
-                        {{ group.title }}
-                      {% endif %}
                     </td>
                     <td scope="row">{{ group.slug }}</td>
                     <td class="text-center">
-                      {% if group.id != 1 %}
                         <a
                             class="bi bi-pencil-fill edit-modal-open"
                             role="button"
                             data-endpoint="
 {% url 'users:group_edit' group_id=group.id %}">
                         </a>
-                      {% endif %}
                     </td>
                     <td class="text-center">
-                      {% if group.id != 1 %}
                         <a
                             class="bi bi-x-lg remove-modal-open"
                             role="button"
                             data-endpoint="
 {% url 'users:group_remove' group_id=group.id %}">
                         </a>
-                      {% endif %}
                     </td>
                   </tr>
                 {% endfor %}

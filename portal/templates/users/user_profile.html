@@ -26,9 +26,14 @@
         <div class="card">
           <div
               class="card-body profile-card pt-4 d-flex flex-column align-items-center">
-
-            <img src="{{ user.profile.thumbnail.url }}" alt="Profile"
+            <a href="{{ user.profile.photo.url }}"
+                     data-fancybox="gallery"
+                     data-caption="{{ user.first_name }} {{ user.last_name }}"
+            >
+              <img src="{{ user.profile.thumbnail.url }}" alt="Profile"
                  class="rounded-circle">
+            </a>
+
             <h2>{{ user.first_name }} {{ user.last_name }}</h2>
             {% if user.profile.job %}
               <h3>{{ user.profile.job }}</h3>
@@ -122,6 +127,20 @@
                 <div class="row">
                   <div class="col-lg-3 col-md-4 label">Рабочий Email</div>
                   <div class="col-lg-9 col-md-8">{{ user.email }}
+                  </div>
+                </div>
+
+               <div class="row">
+                  <div class="col-lg-3 col-md-4 label">Группы</div>
+                  <div class="col-lg-9 col-md-8">
+                  {% if user.groups.all %}
+                    {% for group in user.groups.all %}
+                      {{ group.title }}
+                      {% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                  {% else %}
+                    Группа не назначена
+                  {% endif %}
                   </div>
                 </div>
 
@@ -441,6 +460,13 @@
 {% endblock %}
 
 {% block page_scripts %}
+   <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css"
+    />
+    <script type="module">
+        import {Fancybox} from "https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.esm.js";
+    </script>
   <script>
       $("#drop-area").dmUploader({
           url: '/path/to/backend/upload.asp',

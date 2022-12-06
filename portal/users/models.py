@@ -81,21 +81,16 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
     verified = models.BooleanField(verbose_name="Email Подтвержден",
                                    default=False)
-    group = models.ForeignKey('Group',
-                              on_delete=models.SET_DEFAULT,
-                              default=1,
-                              to_field='id',
-                              related_name='group',
-                              verbose_name='Группа',
-                              blank=False,
-                              null=True)
+    groups = models.ManyToManyField('Group',
+                                    related_name='users',
+                                    blank=True)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
 
     objects = CustomUserManager()
 
     class Meta:
-        ordering = ['id']
+        ordering = ['-id']
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
@@ -138,7 +133,7 @@ class Profile(models.Model):
         return f'{self.user.first_name} {self.user.last_name}'
 
     class Meta:
-        ordering = ['id']
+        ordering = ['-id']
         verbose_name = 'Доп. информация'
         verbose_name_plural = 'Доп. информация'
 
@@ -147,15 +142,15 @@ class Group(models.Model):
     title = models.CharField(max_length=200, verbose_name='Название')
     slug = models.SlugField(max_length=100, unique=True)
 
-    @receiver(post_save, sender=User)
-    def create_user_group(sender, instance, created, **kwargs):
-        if created:
-            group, _ = Group.objects.get_or_create(
-                title='Без группы',
-                slug='none'
-            )
-            instance.group = group
-            instance.save()
+    # @receiver(post_save, sender=User)
+    # def create_user_group(sender, instance, created, **kwargs):
+    #     if created:
+    #         group, _ = Group.objects.get_or_create(
+    #             title='Без группы',
+    #             slug='none'
+    #         )
+    #         instance.group = group
+    #         instance.save()
 
     def __str__(self):
         return self.title

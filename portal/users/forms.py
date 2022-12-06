@@ -14,12 +14,11 @@ REGISTER_SORT_CHOICES = (
 class UserForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'patronymic', 'group']
+        fields = ['first_name', 'last_name', 'patronymic']
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
             'patronymic': forms.TextInput(attrs={'class': 'form-control'}),
-            'group': forms.Select(attrs={'class': 'form-select'}),
         }
 
 
@@ -55,20 +54,30 @@ class UserSearchForm(forms.Form):
                                    empty_label='Все',
                                    widget=forms.Select(
                                        attrs={'class': 'form-select',
-                                              'name': 'group'}
+                                              'name': 'search-group'}
                                    ))
 
 
 ACTIVITY_SORT_CHOICES = (
-    ('old', 'От старого к новому'),
+    ('', '----------'),
     ('new', 'От нового к старому'),
+    ('old', 'От старого к новому'),
 )
 
 
 class AdminUserForm(UserForm):
+    groups = forms.ModelMultipleChoiceField(Group.objects.all(),
+                                            required=True,
+                                            label='Группы',
+                                            to_field_name='title',
+                                            widget=forms.SelectMultiple(
+                                                attrs={'id': 'multiselect',
+                                                       'class': 'multiselect'}
+                                            ))
+
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'patronymic', 'group',
+        fields = ['first_name', 'last_name', 'patronymic', 'groups',
                   'is_admin', 'is_active', 'verified']
         widgets = {
             'is_admin': forms.CheckboxInput(attrs={'class':
@@ -80,7 +89,6 @@ class AdminUserForm(UserForm):
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
             'patronymic': forms.TextInput(attrs={'class': 'form-control'}),
-            'group': forms.Select(attrs={'class': 'form-select'}),
         }
 
 
@@ -88,14 +96,14 @@ class AdminUserSearchForm(UserSearchForm):
     email = forms.CharField(label='Поиск по Email', required=False,
                             widget=forms.TextInput(
                                 attrs={'class': 'form-control',
-                                       'name': 'email'}
+                                       'name': 'search-email'}
                             ))
     activity = forms.ChoiceField(label='Дата последнего визита',
                                  required=False,
                                  choices=ACTIVITY_SORT_CHOICES,
                                  widget=forms.Select(
                                      attrs={'class': 'form-select',
-                                            'name': 'activity'}
+                                            'name': 'search-activity'}
                                  ))
     group = forms.ModelChoiceField(Group.objects.all(),
                                    required=False,
@@ -104,7 +112,7 @@ class AdminUserSearchForm(UserSearchForm):
                                    empty_label='Любая',
                                    widget=forms.Select(
                                        attrs={'class': 'form-select',
-                                              'name': 'group'}
+                                              'name': 'search-group'}
                                    ))
 
     registration_date = None

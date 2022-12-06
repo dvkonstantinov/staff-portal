@@ -17,7 +17,7 @@
 
   <section class="section profile">
     <div class="row">
-    <div class="col-xl-3 col-lg-6 col-md-12">
+      <div class="col-xl-3 col-lg-6 col-md-12">
         <div class="card">
           <div class="card-body"><h5 class="card-title">Фильтры и
             сортировка</h5>
@@ -43,7 +43,21 @@
                   {% if user.profile.job %}
                     <p class="me-3 mb-2">{{ user.profile.job }}</p>
                   {% endif %}
-                  <p class="me-3 mb-0 small">{{ user.group }}</p>
+                  <p class="me-3 mb-0 small">
+                    {% if user.groups.all.count == 0 %}
+                      Группа не назначена
+                    {% elif user.groups.all.count <= 2 %}
+                      {% for group in user.groups.all %}
+                        {{ group.title }}{% if not forloop.last %} ,{% endif %}
+                      {% endfor %}
+                    {% else %}
+                      {% for group in user.groups.all|slice:"2" %}
+                        {{ group.title }}{% if not forloop.last %} ,
+                        {% endif %}
+                      {% endfor %}
+                      и еще {{ user.groups.all.count|add:"-2" }}
+                    {% endif %}
+                  </p>
                 </div>
               </div>
               <div
@@ -62,8 +76,8 @@
 
           </div>
           <div class="col-12">
-              {% include 'inc/_pagination.html' %}
-            </div>
+            {% include 'inc/_pagination.html' %}
+          </div>
         {% endfor %}
       </div>
 

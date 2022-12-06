@@ -56,3 +56,52 @@
     </div>
   </section>
 {% endblock %}
+
+{% block page_scripts %}
+   <link rel="stylesheet"
+        href="{% static 'vendor/bootstrap-select/bootstrap-multiselect.min.css' %}">
+  <script
+      src="{% static 'vendor/bootstrap-select/bootstrap-multiselect.min.js' %}"></script>
+  <script>
+     jQuery(document).ready(function ($) {
+         let multiselectOptions = {
+             nonSelectedText: 'Выбрать группы',
+             includeSelectAllOption: true,
+             selectAllText: 'Выбрать все',
+             allSelectedText: 'Выбрано все',
+             buttonContainer: '<div class="btn-group multiselect-group">',
+             buttonClass: 'btn btn-primary',
+             buttonText: function (options) {
+                 if (options.length === 0) {
+                     return 'Выбрать группы';
+                 } else if (options.length >= 2) {
+                     return options.length + ' выбрано';
+                 } else {
+                     var selected = [];
+                     options.each(function () {
+                         selected.push([$(this).text(), $(this).data('order')]);
+                     });
+
+                     selected.sort(function (a, b) {
+                         return a[1] - b[1];
+                     });
+
+                     var text = '';
+                     for (var i = 0; i < selected.length; i++) {
+                         text += selected[i][0] + ', ';
+                     }
+
+                     return text.substr(0, text.length - 2);
+                 }
+             },
+             templates: {
+                 button:
+                     '<button type="button" class="multiselect dropdown-toggle btn btn-primary" data-bs-toggle="dropdown" aria-expanded="false"><span class="multiselect-selected-text"></span></button>',
+                 popupContainer: '<div class="multiselect-container ' +
+                     'dropdown-menu"></div>',
+             },
+         }
+         $('#multiselect').multiselect(multiselectOptions);
+     });
+  </script>
+{% endblock %}

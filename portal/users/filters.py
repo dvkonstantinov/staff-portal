@@ -25,6 +25,9 @@ class UserFilter(django_filters.FilterSet):
         if value == 'new':
             queryset = queryset.order_by('-date_joined')
             return queryset
+        elif value == 'old':
+            queryset = queryset.order_by('date_joined')
+            return queryset
         return queryset
 
 
@@ -44,5 +47,5 @@ class AdminUserFilter(UserFilter):
         return queryset
 
     def group_filter(self, queryset, name, value):
-        queryset = queryset.filter(group__title=value)
+        queryset = queryset.filter(groups__title=value)
         return queryset

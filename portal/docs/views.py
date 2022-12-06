@@ -1,10 +1,9 @@
-import json
-
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import ProtectedError
-from django.http import JsonResponse, HttpResponseNotFound
+from django.http import JsonResponse, HttpResponseNotFound, \
+    HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404
 from django.template.defaultfilters import upper
 from django.views.decorators.clickjacking import xframe_options_exempt
@@ -32,9 +31,11 @@ class DocListView(LoginRequiredMixin, FilterView):
     filterset_class = DocFilter
 
     def get_queryset(self):
-        user_group = self.request.user.group
-        allowed_docs = Document.objects.filter(groups=user_group,
-                                               is_for_deleting=False)
+        user_groups = self.request.user.groups.all()
+        print(user_groups)
+        allowed_docs = Document.objects.filter(
+            groups__in=user_groups,
+            is_for_deleting=False).distinct()
         return allowed_docs
 
     def get_context_data(self, **kwargs):
@@ -72,26 +73,37 @@ def doc_detail(request, doc_id):
         doc = Document.objects.get(id=doc_id)
     except Document.DoesNotExist as err:
         return JsonResponse({"errors": err}, status=404)
-    if request.user.group in doc.groups.all():
-        extention = upper(doc.file.url.split('.')[-1])
-        context = {'doc': doc,
-                   'extention': extention,
-                   'site_path': SITE_FULL_PATH}
-        return render(request, 'docs/doc_detail.html', context=context)
+    user_groups = request.user.groups.all()
+    doc_groups = doc.groups.all()
+    for gr in user_groups:
+        if gr in doc_groups:
+            break
     else:
-        return HttpResponseNotFound()
+        return HttpResponseForbidden()
+    extention = upper(doc.file.url.split('.')[-1])
+    context = {'doc': doc,
+               'extention': extention,
+               'site_path': SITE_FULL_PATH}
+    return render(request, 'docs/doc_detail.html', context=context)
+
 
 
 @login_required
 @require_http_methods(["POST"])
 def doc_sign(request):
-    doc_id = request.POST['doc_id']
-    document = get_object_or_404(Document, id=doc_id)
-    if request.user.group in document.groups.all():
-        user = get_object_or_404(User, id=request.user.id)
-        document.signed.add(user)
-        return JsonResponse({'message': 'success sign'}, status=200)
-    return JsonResponse({'errors': 'access denied'}, status=400)
+    try:
+        doc = get_object_or_404(Document, id=request.POST['doc_id'])
+    except Document.DoesNotExist as err:
+        return JsonResponse({"errors": err}, status=404)
+    user = get_object_or_404(User, id=request.user.id)
+    user_groups = user.groups.all()
+    doc_groups = doc.groups.all()
+    for gr in user_groups:
+        if gr in doc_groups:
+            doc.signed.add(user)
+            return JsonResponse({'message': 'success sign'}, status=200)
+    else:
+        return HttpResponseForbidden()
 
 
 class AdminDocListView(DocListView):
@@ -170,8 +182,8 @@ def doc_signers(request, doc_id):
     unsigned_users = User.objects.filter(is_superuser=False,
                                          is_active=True,
                                          verified=True,
-                                         group__in=document.groups.all()
-                                         ).exclude(id__in=signed_users)
+                                         groups__in=document.groups.all()
+                                         ).exclude(id__in=signed_users).distinct()
     signed_users = list(signed_users.values('id', 'email', 'first_name',
                                             'last_name'))
     unsigned_users = list(unsigned_users.values('id', 'email', 'first_name',

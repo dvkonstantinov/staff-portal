@@ -38,7 +38,21 @@
                     {{ user.first_name }}
                     {{ user.last_name }}</a>
                   </td>
-                  <td>{{ user.group }}</td>
+                  <td>
+                    {% if user.groups.all.count == 0 %}
+                      Группа не назначена
+                    {% elif user.groups.all.count <= 2 %}
+                      {% for group in user.groups.all %}
+                        {{ group.title }}{% if not forloop.last %} ,{% endif %}
+                      {% endfor %}
+                    {% else %}
+                      {% for group in user.groups.all|slice:"2" %}
+                        {{ group.title }}{% if not forloop.last %} ,
+                        {% endif %}
+                      {% endfor %}
+                      и еще {{ user.groups.all.count|add:"-2" }}
+                    {% endif %}
+                  </td>
                   <td>{{ user.email }}</td>
                   <td class="text-center"><a class="bi bi-pencil-fill"
                                              href="
@@ -74,6 +88,10 @@
 
 {% block page_scripts %}
   <script>
+   jQuery(document).ready(function ($) {
+       let selectGroup =
+   });
+
       window.addEventListener('load', () => {
           const dropdown = document.querySelector('.pagination');
           dropdown.classList.toggle('pagination-sm',

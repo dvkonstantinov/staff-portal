@@ -26,8 +26,8 @@ class UserListView(LoginRequiredMixin, FilterView):
     template_name = 'users/user_list.html'
     paginate_by = 10
     filterset_class = UserFilter
-    queryset = User.objects.select_related('profile', 'group').filter(
-        is_active=True, verified=True)
+    queryset = User.objects.select_related('profile').prefetch_related(
+        'groups').filter(is_active=True, verified=True)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -91,7 +91,8 @@ def remove_avatar(request):
 
 
 class AdminUserListView(UserListView):
-    queryset = User.objects.select_related('group').filter(is_superuser=False)
+    queryset = User.objects.prefetch_related('groups').filter(
+        is_superuser=False)
     template_name = 'users/admin_user_list.html'
     filterset_class = AdminUserFilter
     paginate_by = 10
@@ -183,9 +184,6 @@ def admin_group_remove(request, group_id):
         data = {'errors': 'Группа не существует. Возможно она уже удалена '
                           'или не была создана'}
         return JsonResponse(data, status=404)
-    if group.title == 'Без группы' or group.id == 1 or group.slug == 'none':
-        data = {'errors': 'Нельзя удалить группу по умолчанию'}
-        return JsonResponse(data, status=400)
     group.delete()
     data = {'message': 'success'}
     return JsonResponse(data, status=200)
