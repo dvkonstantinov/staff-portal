@@ -2,8 +2,6 @@ import django_filters
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 
-from docs.models import Document
-
 User = get_user_model()
 
 

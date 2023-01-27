@@ -5,8 +5,8 @@ jQuery(document).ready(function ($) {
         if (clearLocation == link) {
             $(this).addClass('active')
             let navItem = $(this).closest('.nav-item')
-            navItem.children('a.nav-link').removeClass('collapsed')
-            navItem.children('ul.nav-content').removeClass('collapse')
+            navItem.children('a.nav-link').removeClass('collapsed').attr('aria-expanded', 'true')
+            navItem.children('ul.nav-content').addClass('show')
             $(this).removeClass('collapsed')
         }
     })

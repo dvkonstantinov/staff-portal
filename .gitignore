@@ -137,3 +137,5 @@ sent_emails/
 /portal/media/documents/
 /portal/media/profile_photos/full
 /portal/media/profile_photos/thumbs
+/portal/media/post_images/
+/portal/media/posts/

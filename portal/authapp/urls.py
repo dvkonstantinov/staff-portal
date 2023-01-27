@@ -1,14 +1,12 @@
-from django.contrib.auth.views import (LogoutView, LoginView,
-                                       PasswordResetView,
+from django.contrib.auth.views import (LogoutView, PasswordResetCompleteView,
                                        PasswordResetConfirmView,
-                                       PasswordResetCompleteView,
-                                       PasswordResetDoneView)
+                                       PasswordResetDoneView,
+                                       PasswordResetView)
 from django.urls import path, reverse_lazy
 
-from .forms import UserLoginForm
-from .views import CustomPasswordChangeView, SignUpView, \
-    email_verification_done, \
-    CustomPasswordResetView, email_verification, CustomLoginView
+from .views import (CustomLoginView, CustomPasswordChangeView,
+                    CustomPasswordResetView, email_verification,
+                    email_verification_done, resend_email, signup_view)
 
 app_name = 'authapp'
 
@@ -16,8 +14,9 @@ urlpatterns = [
     path('logout/',
          LogoutView.as_view(template_name='authapp/logged_out.html'),
          name='logout'),
-    path('signup/', SignUpView.as_view(), name='signup'),
+    path('signup/', signup_view, name='signup'),
     path('verification/', email_verification, name='email_verification'),
+    path('resend-email/', resend_email, name='resend_email'),
     path('verification/<uidb64>/<token>/', email_verification_done,
          name='email_verification_done'),
     path(
@@ -39,17 +38,17 @@ urlpatterns = [
         ),
         name='password_reset'
     ),
+    path('reset/<uidb64>/<token>/',
+         PasswordResetConfirmView.as_view(
+             template_name='authapp/password_reset_confirm.html'),
+         name='password_reset_confirm'
+         ),
     path(
         'password_reset/done/',
         PasswordResetView.as_view(
             template_name='authapp/password_reset_done.html'),
         name='password_reset_done'
     ),
-    path('reset/<uidb64>/<token>/',
-         PasswordResetConfirmView.as_view(
-             template_name='authapp/password_reset_confirm.html'),
-         name='password_reset_confirm'
-         ),
     path('reset/done/',
          PasswordResetCompleteView.as_view(
              template_name='authapp/password_reset_complete.html'),

@@ -2,12 +2,14 @@
 <ul class="sidebar-nav" id="sidebar-nav">
 
   <li class="nav-item">
-    <a class="nav-link " href="index.html">
+    <a class="nav-link collapsed" href="{% url 'main:home_page' %}">
       <i class="bi bi-grid"></i>
-      <span>Dashboard</span>
+      <span>Главная</span>
     </a>
   </li>
+
   {% if request.user.is_staff or request.user.is_admin %}
+    <li class="nav-heading">Админка</li>
     <li class="nav-item">
       <a class="nav-link collapsed" data-bs-target="#admin-nav"
          data-bs-toggle="collapse" href="#">
@@ -36,6 +38,16 @@
             <i class="bi bi-circle"></i><span>Категории документов</span>
           </a>
         </li>
+        <li>
+          <a href="{% url 'posts:post_manage' %}">
+            <i class="bi bi-circle"></i><span>Новости</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'posts:category_manage' %}">
+            <i class="bi bi-circle"></i><span>Рубрики новостей</span>
+          </a>
+        </li>
       </ul>
     </li>
   {% endif %}
@@ -53,6 +65,12 @@
     <a class="nav-link collapsed" href="{% url 'docs:doc_list' %}">
       <i class="bi bi-question-circle"></i>
       <span>Документы</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link collapsed" href="{% url 'posts:post_list' %}">
+      <i class="bi bi-question-circle"></i>
+      <span>Новости</span>
     </a>
   </li>
 

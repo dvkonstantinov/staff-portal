@@ -1,0 +1,21 @@
+{% for field in search_form %}
+  {% include 'inc/forms/_form_nonfield_errors.html' %}
+  <div class="row mb-3">
+    <label for="{{ field.id_for_label }}"
+           class="col-sm-12 col-form-label">
+      {{ field.label }}
+    </label>
+    <div class="col-md-12">
+      {{ field }}
+    </div>
+    {% include 'inc/forms/_form_field_errors.html' %}
+  </div>
+{% endfor %}
+<div class="row mb-3 mt-4">
+  <div class="col-sm-12 text-center">
+    <button type="submit" class="btn btn-primary">Поиск
+    </button>
+    <button id="clearSearch" class="btn btn-outline-primary">Сброс
+    </button>
+  </div>
+</div>

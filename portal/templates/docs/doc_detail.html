@@ -59,6 +59,7 @@
                   </div>
                 {% endif %}
                 <p>{{ doc.description }}</p>
+              <hr>
                 <h5 class="">Просмотр документа</h5>
                 {% if extention == 'PDF' %}
                   <button type="button"
@@ -113,7 +114,7 @@
         <div class="modal-body">
           <iframe
               src="{% static 'vendor/pdfjs/web/viewer.html' %}
-                ?file={{ site_path }}{{ doc.file.url }}&zoom=page-fit"
+                ?file={{ protocol }}://{{ domain }}{{ doc.file.url }}&zoom=page-fit"
               id="file-pdf"
               style="width:100%;
                      height:100%;
@@ -142,7 +143,7 @@
   {% if extention == 'PDF' %}
     <script src="{% static 'vendor/pdfjs/js/pdf.min.js' %}"></script>
     <script>
-        let file_url = '{{ site_path }}{{ doc.file.url }}';
+        let file_url = '{{ protocol }}://{{ domain }}{{ doc.file.url }}';
         let pdfjsLib = window['pdfjs-dist/build/pdf'];
         pdfjsLib.GlobalWorkerOptions.workerSrc = "{% static 'vendor/pdfjs/js/pdf.worker.min.js' %}";
         idContainer = document.querySelector('#previewContainer')

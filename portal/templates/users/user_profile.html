@@ -27,11 +27,11 @@
           <div
               class="card-body profile-card pt-4 d-flex flex-column align-items-center">
             <a href="{{ user.profile.photo.url }}"
-                     data-fancybox="gallery"
-                     data-caption="{{ user.first_name }} {{ user.last_name }}"
+               data-fancybox="gallery"
+               data-caption="{{ user.first_name }} {{ user.last_name }}"
             >
               <img src="{{ user.profile.thumbnail.url }}" alt="Profile"
-                 class="rounded-circle">
+                   class="rounded-circle">
             </a>
 
             <h2>{{ user.first_name }} {{ user.last_name }}</h2>
@@ -39,23 +39,23 @@
               <h3>{{ user.profile.job }}</h3>
             {% endif %}
             <div class="social-links mt-2">
-            {% if user.profile.telegram %}
-              <a href="#">
-                <i class="bi bi-telegram"
-                   data-toggle="tooltip"
-                   title="Телеграм"></i></a>
-            {% endif %}
-            {% if user.profile.phone %}
-              <a href="#">
-                <i class="bi bi-telephone-fill"
-                   data-toggle="tooltip"
-                   title="Телефон"></i></a>
-            {% endif %}
+              {% if user.profile.telegram %}
+                <a href="#">
+                  <i class="bi bi-telegram"
+                     data-toggle="tooltip"
+                     title="Телеграм"></i></a>
+              {% endif %}
+              {% if user.profile.phone %}
+                <a href="#">
+                  <i class="bi bi-telephone-fill"
+                     data-toggle="tooltip"
+                     title="Телефон"></i></a>
+              {% endif %}
               {% if user.email %}
-              <a href="#">
-                <i class="bi bi-envelope-fill"
-                   data-toggle="tooltip"
-                   title="Рабочий Email"></i></a>
+                <a href="#">
+                  <i class="bi bi-envelope-fill"
+                     data-toggle="tooltip"
+                     title="Рабочий Email"></i></a>
               {% endif %}
             </div>
           </div>
@@ -81,11 +81,11 @@
                   </button>
                 </li>
 
-                <li class="nav-item">
-                  <button class="nav-link" data-bs-toggle="tab"
-                          data-bs-target="#profile-settings">Настройки
-                  </button>
-                </li>
+{#                <li class="nav-item">#}
+{#                  <button class="nav-link" data-bs-toggle="tab"#}
+{#                          data-bs-target="#profile-settings">Настройки#}
+{#                  </button>#}
+{#                </li>#}
 
                 <li class="nav-item">
                   <button class="nav-link" data-bs-toggle="tab"
@@ -130,17 +130,17 @@
                   </div>
                 </div>
 
-               <div class="row">
+                <div class="row">
                   <div class="col-lg-3 col-md-4 label">Группы</div>
                   <div class="col-lg-9 col-md-8">
-                  {% if user.groups.all %}
-                    {% for group in user.groups.all %}
-                      {{ group.title }}
-                      {% if not forloop.last %}, {% endif %}
-                    {% endfor %}
-                  {% else %}
-                    Группа не назначена
-                  {% endif %}
+                    {% if user.groups.all %}
+                      {% for group in user.groups.all %}
+                        {{ group.title }}
+                        {% if not forloop.last %}, {% endif %}
+                      {% endfor %}
+                    {% else %}
+                      Группа не назначена
+                    {% endif %}
                   </div>
                 </div>
 
@@ -195,13 +195,15 @@
                     профиля">
                       <div class="pt-2">
                         <button class="btn btn-primary btn-sm"
-                                title="Загрузить новое фото профиля"><i
-                            class="bi bi-upload" data-bs-toggle="modal"
-                            data-bs-target="#avatarModal1"></i></button>
+                                title="Загрузить новое фото профиля"
+                                data-bs-toggle="modal"
+                                data-bs-target="#avatarModal1"><i
+                            class="bi bi-upload"></i></button>
                         <button class="btn btn-danger btn-sm"
-                                title="Удалить фото профиля"><i
-                            class="bi bi-trash" data-bs-toggle="modal"
-                            data-bs-target="#avatarRemove"></i></button>
+                                title="Удалить фото профиля"
+                                data-bs-toggle="modal"
+                                data-bs-target="#avatarRemove"><i
+                            class="bi bi-trash"></i></button>
                       </div>
                     </div>
                   </div>
@@ -220,55 +222,55 @@
 
                 </div>
 
-                <div class="tab-pane fade pt-3" id="profile-settings">
-
-                  <!-- Settings Form -->
-                  <form>
-
-                    <div class="row mb-3">
-                      <label for="fullName"
-                             class="col-md-4 col-lg-3 col-form-label">Email
-                        Notifications</label>
-                      <div class="col-md-8 col-lg-9">
-                        <div class="form-check">
-                          <input class="form-check-input" type="checkbox"
-                                 id="changesMade" checked>
-                          <label class="form-check-label" for="changesMade">
-                            Changes made to your account
-                          </label>
-                        </div>
-                        <div class="form-check">
-                          <input class="form-check-input" type="checkbox"
-                                 id="newProducts" checked>
-                          <label class="form-check-label" for="newProducts">
-                            Information on new products and services
-                          </label>
-                        </div>
-                        <div class="form-check">
-                          <input class="form-check-input" type="checkbox"
-                                 id="proOffers">
-                          <label class="form-check-label" for="proOffers">
-                            Marketing and promo offers
-                          </label>
-                        </div>
-                        <div class="form-check">
-                          <input class="form-check-input" type="checkbox"
-                                 id="securityNotify" checked disabled>
-                          <label class="form-check-label" for="securityNotify">
-                            Security alerts
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="text-center">
-                      <button type="submit" class="btn btn-primary">Save
-                        Changes
-                      </button>
-                    </div>
-                  </form><!-- End settings Form -->
-
-                </div>
+{#                <div class="tab-pane fade pt-3" id="profile-settings">#}
+{##}
+{#                  <!-- Settings Form -->#}
+{#                  <form>#}
+{##}
+{#                    <div class="row mb-3">#}
+{#                      <label for="fullName"#}
+{#                             class="col-md-4 col-lg-3 col-form-label">Email#}
+{#                        Notifications</label>#}
+{#                      <div class="col-md-8 col-lg-9">#}
+{#                        <div class="form-check">#}
+{#                          <input class="form-check-input" type="checkbox"#}
+{#                                 id="changesMade" checked>#}
+{#                          <label class="form-check-label" for="changesMade">#}
+{#                            Changes made to your account#}
+{#                          </label>#}
+{#                        </div>#}
+{#                        <div class="form-check">#}
+{#                          <input class="form-check-input" type="checkbox"#}
+{#                                 id="newProducts" checked>#}
+{#                          <label class="form-check-label" for="newProducts">#}
+{#                            Information on new products and services#}
+{#                          </label>#}
+{#                        </div>#}
+{#                        <div class="form-check">#}
+{#                          <input class="form-check-input" type="checkbox"#}
+{#                                 id="proOffers">#}
+{#                          <label class="form-check-label" for="proOffers">#}
+{#                            Marketing and promo offers#}
+{#                          </label>#}
+{#                        </div>#}
+{#                        <div class="form-check">#}
+{#                          <input class="form-check-input" type="checkbox"#}
+{#                                 id="securityNotify" checked disabled>#}
+{#                          <label class="form-check-label" for="securityNotify">#}
+{#                            Security alerts#}
+{#                          </label>#}
+{#                        </div>#}
+{#                      </div>#}
+{#                    </div>#}
+{##}
+{#                    <div class="text-center">#}
+{#                      <button type="submit" class="btn btn-primary">Save#}
+{#                        Changes#}
+{#                      </button>#}
+{#                    </div>#}
+{#                  </form><!-- End settings Form -->#}
+{##}
+{#                </div>#}
 
                 <div class="tab-pane fade pt-3" id="profile-change-password">
                   <!-- Change Password Form -->
@@ -460,13 +462,11 @@
 {% endblock %}
 
 {% block page_scripts %}
-   <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css"
-    />
-    <script type="module">
-        import {Fancybox} from "https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.esm.js";
-    </script>
+  <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css"
+  />
+  <script type="module"></script>
   <script>
       $("#drop-area").dmUploader({
           url: '/path/to/backend/upload.asp',
@@ -678,4 +678,7 @@
       }
 
   </script>
+      <script type="module">
+        import {Fancybox} from "https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.esm.js";
+    </script>
 {% endblock %}

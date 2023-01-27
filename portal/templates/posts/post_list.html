@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load static user_filters %}
+{% block title %}Новости{% endblock %}
+{% block content %}
+
+  <div class="pagetitle">
+    <h1>Новости</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'main:home_page' %}"><i
+            class="bi bi-house-door"></i></a></li>
+        <li class="breadcrumb-item">Новости</li>
+      </ol>
+    </nav>
+  </div>
+
+  <section class="section profile">
+    <div class="row d-flex  flex-lg-row flex-column-reverse">
+      <div class="col-xl-3 col-lg-5 col-md-12">
+        <div class="card">
+          <div class="card-body"><h5 class="card-title">Фильтры и
+            сортировка</h5>
+            <form method="get">
+              {% include 'inc/forms/_search_form.html' %}
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-9 col-lg-7 col-md-12">
+        <div class="card mb-3">
+          <div class="card-body mb-2 pt-4">
+            <div class="row">
+            <div class="col-md-12">
+              {% if page_obj %}
+
+                {% for post in page_obj %}
+                    <div
+                        class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+                      <div class="col p-4 d-flex flex-column position-static">
+                         <a href="{% url 'posts:post_detail' post_id=post.id %}"
+{#                           class="">
+                           <h4 class="mb-0 p-0 card-title" >{{ post.title }}</h4>
+                         </a>
+
+                        <p
+                            class="d-inline-block mb-2 small">
+                          {{ post.category }} <span class=" text-muted small"> |
+                          {{ post.created_at|date:"d M Y" }}</span></p>
+
+
+                        <p class="card-text mb-auto">
+                          {{ post.body|striptags|clearnbsp|truncatewords:30 }}</p>
+                      </div>
+                      {% if post.image %}
+                        <div class="col-auto d-none d-lg-block"
+                             style="width: 300px; height: 200px">
+                          <img class="img-fluid" src="{{ post.image.url }}"
+                               alt="{{ post.title }}">
+                        </div>
+                      {% endif %}
+                    </div>
+                {% endfor %}
+
+                {% else %}
+                <p class="text-center">Новости не найдены</p>
+              {% endif %}
+            </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12">
+          {% include 'inc/_pagination.html' %}
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+{% endblock %}
+
+{% block page_scripts %}
+  <script>
+      window.addEventListener('load', () => {
+          const dropdown = document.querySelector('.pagination');
+          dropdown.classList.toggle('pagination-sm',
+              window.matchMedia('(max-width:769px)').matches);
+      });
+
+      window.addEventListener('resize', () => {
+          const dropdown = document.querySelector('.pagination');
+          dropdown.classList.toggle('pagination-sm',
+              window.matchMedia('(max-width:769px)').matches);
+      });
+  </script>
+{% endblock %}

@@ -1,0 +1,336 @@
+{% extends "base.html" %}
+{% load static %}
+{% load user_filters %}
+{% block title %}Управление рубриками новостей - Админка{% endblock %}
+{% block content %}
+
+  <div class="pagetitle">
+    <h1>Управление рубриками новостей</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'main:home_page' %}"><i
+            class="bi bi-house-door"></i></a></li>
+        <li class="breadcrumb-item">Управление рубриками</li>
+      </ol>
+    </nav>
+  </div>
+
+  <section class="section profile">
+    <div class="row">
+      <div class="col-12">
+        <div class="card profile-list-card mb-3">
+          <div class="card-body d-flex flex-row row">
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                <tr>
+                  <th scope="col">id</th>
+                  <th scope="col">Название</th>
+                  <th scope="col">Slug</th>
+                  <th scope="col" class="text-center">Ред.</th>
+                  <th scope="col" class="text-center">Удалить</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if page_obj %}
+                {% for postcategory in page_obj %}
+                  <tr>
+                    <th class="group-id" scope="row">{{ postcategory.id }}</th>
+                    <td>
+                      <a class="edit-modal-open category-title"
+                         role="button"
+                         data-endpoint="{% url 'posts:category_edit' slug=postcategory.slug %}"
+                      >{{ postcategory.title }}</a>
+                    </td>
+                    <td>{{ postcategory.slug }}</td>
+                    <td class="text-center">
+                      <a
+                          class="bi bi-pencil-fill edit-modal-open"
+                          role="button"
+                          data-endpoint="{% url 'posts:category_edit' slug=postcategory.slug %}">
+                      </a>
+                    </td>
+                    <td class="text-center">
+                      <a
+                          class="bi bi-x-lg remove-modal-open"
+                          role="button"
+                          data-endpoint="{% url 'posts:category_remove' slug=postcategory.slug %}">
+                      </a>
+                    </td>
+                  </tr>
+                {% endfor %}
+                  {% else %}
+                  <td colspan="5" class="text-center">Рубрики не найдены</td>
+                {% endif %}
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+        <div class="col-12">
+          {% include 'inc/_pagination.html' %}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-6 col-md-12">
+        <div class="card">
+          <div class="card-body p-3">
+            <h4 class="card-title">Добавление новой рубрики</h4>
+            <button
+                class="btn btn-primary create-modal-open"
+                data-endpoint="{% url 'posts:category_create' %}">
+              Добавить рубрику
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-md-12">
+        <div class="card">
+          <div class="card-body p-3">
+            <h4 class="card-title">Пояснение</h4>
+            <p>Это страница управления группами пользователей. Группы -
+              отделы, куда относятся люди. Например, учителя, администрация,
+              бухгалтерия итд.</p>
+            <p>Группа имеет 2 поля - название группы (как она отображается)
+              и slug (слаг) - латинское слово. В слаге допустимы
+              большие и маленькие латинские буквы и тире ( - ).
+            </p>
+            <p>Для создания новой группы нужно нажать кнопку "Создать" выше
+              . Для изменения названия или слага уже существующей группы -
+              нажать карандаш (ссылку) напротив той группы, которую вы
+              хотите редактировать, затем в попапе нажать сохранить.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="modal fade" id="categoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="modalTitle">Изменение группы</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary"
+                  id="modalCancel"
+                  data-bs-dismiss="modal">Закрыть
+          </button>
+          <button id="modalSubmit" type="button" class="btn
+          btn-primary">Сохранить
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="categoryRemoveModal" tabindex="-1"
+       aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="modalRemoveTitle">Изменение
+            группы</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary"
+                  id="modalRemoveCancel"
+                  data-bs-dismiss="modal">Отмена
+          </button>
+          <button id="modalRemoveSubmit" type="button" class="btn
+          btn-primary">Удалить
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block page_scripts %}
+  <script>
+      jQuery(document).ready(function ($) {
+          const categoryModal = new bootstrap.Modal(document.getElementById
+          ('categoryModal'))
+          const categoryRemoveModal = new bootstrap.Modal(document
+              .getElementById('categoryRemoveModal'))
+          let updateLink = $('.edit-modal-open')
+          let createLink = $('.create-modal-open')
+          let removeLink = $('.remove-modal-open')
+
+          let modalBody = document.querySelector('#categoryModal .modal-body')
+          let modalSubmit = document.querySelector('#modalSubmit')
+          let modalTitle = document.querySelector('#modalTitle')
+          let modalCancel = document.querySelector('#modalCancel')
+
+          let modalRemoveBody = document.querySelector('#categoryRemoveModal .modal-body')
+          let modalRemoveSubmit = document.querySelector('#modalRemoveSubmit')
+          let modalRemoveTitle = document.querySelector('#modalRemoveTitle')
+          let modalRemoveCancel = document.querySelector('#modalRemoveCancel')
+          let endpoint
+
+          updateLink.click(function () {
+              endpoint = $(this).attr('data-endpoint')
+              modalSubmit.innerHTML = 'Обновить'
+              modalTitle.innerHTML = 'Обновить рубрику'
+              modalCancel.innerHTML = 'Отмена'
+              categoryModal.show()
+              loadFormContentAjax('Изменение рубрики')
+              $(modalSubmit).removeClass('d-none');
+          });
+          createLink.click(function () {
+              endpoint = $(this).attr('data-endpoint')
+              modalTitle.innerHTML = 'Создать новую рубрику'
+              modalSubmit.innerHTML = 'Сохранить'
+              modalCancel.innerHTML = 'Отмена'
+              categoryModal.show()
+              loadFormContentAjax('Добавление рубрики')
+              $(modalSubmit).removeClass('d-none');
+          });
+          removeLink.click(function () {
+              endpoint = $(this).attr('data-endpoint')
+              modalRemoveTitle.innerHTML = 'Удалить рубрику'
+              modalRemoveSubmit.innerHTML = 'Удалить'
+              modalRemoveCancel.innerHTML = 'Отмена'
+              let catTitle = $(this).parent().parent().find('a' +
+                  '.category-title').text();
+              modalRemoveBody.innerHTML = '<p>Вы уверены, что хотите удалить' +
+                  ' рубрику ' + catTitle + '</p>';
+              categoryRemoveModal.show()
+              $(modalRemoveSubmit).removeClass('d-none');
+          });
+
+
+          function loadFormContentAjax(title) {
+              $.ajax({
+                  type: 'get',
+                  url: endpoint,
+                  success: function (response) {
+                      modalBody.innerHTML = '';
+                      modalBody.innerHTML = response;
+                      let groupForm = $(modalBody).find('form');
+                      modalTitle.innerHTML = title;
+                      modalSubmit.setAttribute('form', groupForm.attr('id'));
+                  },
+                  error: function (response) {
+                      console.log(response);
+                      $(modalSubmit).addClass('d-none');
+                      modalCancel.innerHTML = 'Закрыть';
+                      modalBody.innerHTML = 'Произошла ошибка. Попробуйте ' +
+                          'позднее или обратитесь к администратору';
+                      showToast('text-bg-danger', 'Неудачно', 'Неудачная ' +
+                          'попытка загрузки контента');
+                  },
+                  complete: function (response) {
+
+                  },
+              });
+          }
+
+          $(modalSubmit).on('click', CategoryPostAjax);
+          $(modalRemoveSubmit).on('click', CategoryRemoveAjax);
+
+          function CategoryPostAjax(e) {
+              e.preventDefault();
+              let form = $(modalBody).find('form');
+              console.log(endpoint)
+              let postData = form.serialize();
+              postData += '&csrfmiddlewaretoken=' + csrftoken
+              $.ajax({
+                  type: 'post',
+                  url: endpoint,
+                  data: postData,
+                  success: function (response) {
+                      console.log(response)
+                      $(modalSubmit).addClass('d-none')
+                      modalCancel.innerHTML = 'Закрыть'
+                      showToast('text-bg-success', 'Успешно', 'Рубрика  ' +
+                          'успешно сохранена')
+                  },
+                  error: function (response) {
+                      console.log(response)
+                      FormError(response, form)
+                      showToast('text-bg-danger', 'Неудачно', 'Неудачная ' +
+                          'попытка сохранения рубрики')
+                  }
+              });
+          }
+
+
+          function CategoryRemoveAjax(e) {
+              e.preventDefault();
+              let data = new FormData();
+              data.append('csrfmiddlewaretoken', csrftoken)
+              $.ajax({
+                  data: data,
+                  type: 'post',
+                  url: endpoint,
+                  cache: false,
+                  processData: false,
+                  contentType: false,
+                  success: function (response) {
+                      modalRemoveBody.innerHTML = '<p>Рубрика успешно удалена. Обновите страницу, чтобы в этом убедиться</p>';
+                      showToast('text-bg-success', 'Успешно', 'Рубрика удалена')
+                  },
+                  error: function (response) {
+                      let error = response['responseJSON']['errors']
+                      console.log(error)
+                      if (error) {
+                          modalRemoveBody.innerHTML = '<p>' + error + '</p>';
+                      } else {
+                          modalRemoveBody.innerHTML = 'Произошла ошибка. Попробуйте позднее или обратитесь к администратору';
+                      }
+                      showToast('text-bg-danger', 'Неудачно', 'Неудачная попытка удаления рубрики')
+                  },
+                  complete: function (response) {
+                      console.log(response)
+                      $(modalRemoveCancel).text('Закрыть')
+                      $(modalRemoveSubmit).addClass('d-none');
+                  }
+              });
+          }
+
+
+          function FormError(response, form) {
+              form.find('div.invalid-feedback').remove()
+              form.find('input, select')
+                  .click(function () {
+                      $(this).next('div.invalid-feedback').remove()
+                  })
+              let form_errors = response['responseJSON']['errors']
+              console.log(form_errors)
+              for (let key in form_errors) {
+                  form.find('[name=' + key + ']').after(
+                      '<div class="invalid-feedback">' + form_errors[key] + '</div>'
+                  )
+              }
+          }
+
+      });
+
+
+      window.addEventListener('load', () => {
+          const dropdown = document.querySelector('.pagination');
+          if (dropdown) {
+              dropdown.classList.toggle('pagination-sm',
+                  window.matchMedia('(max-width:769px)').matches);
+          }
+      });
+
+      window.addEventListener('resize', () => {
+          const dropdown = document.querySelector('.pagination');
+          if (dropdown) {
+              dropdown.classList.toggle('pagination-sm',
+                  window.matchMedia('(max-width:769px)').matches);
+          }
+      });
+  </script>
+{% endblock %}

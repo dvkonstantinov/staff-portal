@@ -3,17 +3,18 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.tokens import default_token_generator
 from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_http_methods
 from django.views.generic import ListView
 from django_filters.views import FilterView
 
 from authapp.forms import CustomPasswordChangeForm
 from core.decorators import adminuser_required
-from .filters import UserFilter, AdminUserFilter
-from .forms import UserProfileForm, UserForm, UserSearchForm, \
-    AdminGroupEditAddForm, AdminUserForm, AdminUserSearchForm
-from .models import Profile, Group
+
+from .filters import AdminUserFilter, UserFilter
+from .forms import (AdminGroupEditAddForm, AdminUserForm, AdminUserSearchForm,
+                    UserForm, UserProfileForm, UserSearchForm)
+from .models import Group, Profile
 from .utils import image_fetcher
 
 User = get_user_model()
@@ -27,7 +28,7 @@ class UserListView(LoginRequiredMixin, FilterView):
     paginate_by = 10
     filterset_class = UserFilter
     queryset = User.objects.select_related('profile').prefetch_related(
-        'groups').filter(is_active=True, verified=True)
+        'groups').filter(is_active=True, verified=True, is_superuser=False)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -36,7 +36,8 @@
                   </tr>
                   </thead>
                   <tbody>
-                  {% for doc in page_obj %}
+                  {% if page_obj %}
+                     {% for doc in page_obj %}
                     <tr>
                       <th scope="row">{{ doc.id }}</th>
                       <td>
@@ -50,11 +51,13 @@
                       <td>{{ doc.created_at }}</td>
                       <td>{{ user.email }}</td>
                       <td class="text-center">
+                        {% if doc.for_signing %}
                         <a
                             class="bi bi-eye-fill signers-popup-open"
                             role="button"
                             data-endpoint="{% url 'docs:doc_signers' doc_id=doc.id %}"
                         ></a>
+                        {% endif %}
                       </td>
                       <td class="text-center">
                         <a
@@ -72,6 +75,9 @@
                       </td>
                     </tr>
                   {% endfor %}
+                    {% else %}
+                    <td colspan="8" class="text-center">Документы не найдены</td>
+                  {% endif %}
                   </tbody>
                 </table>
               </div>
@@ -84,7 +90,7 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-xl-3 col-lg-5 col-md-12">
+      <div class="col-xl-4 col-lg-6 col-md-12">
         <div class="card">
           <div class="card-body"><h5 class="card-title">Фильтры и
             сортировка</h5>
@@ -94,7 +100,7 @@
           </div>
         </div>
       </div>
-      <div class="col-xl-3 col-lg-5 col-md-12">
+      <div class="col-xl-3 col-lg-6 col-md-12">
         <div class="card">
           <div class="card-body"><h5 class="card-title">Добавление
             документа</h5>
@@ -109,10 +115,14 @@
           </div>
         </div>
       </div>
-      <div class="col-xl-3 col-lg-5 col-md-12">
+      <div class="col-xl-5 col-lg-6 col-md-12">
         <div class="card">
-          <div class="card-body"><h5 class="card-title">Описание</h5>
-            <p>fddsafsdfs</p>
+          <div class="card-body"><h5 class="card-title">Пояснение</h5>
+            <p>Страница управления документами. Чтобы добавить новый документ, нужно нажать кнопку "добавить". Ввести название документа, его краткое описание, выбрать предварительно добавленную категорию, выбрать группы пользователей, кому доступен документ, приложить сам документ и указать,
+              нужно ли его подписывать. Если нет, то документ будет только для ознакомления.</p>
+            <p>При изменении документа, пользователям не придет уведомление, что документ изменен.</p>
+            <p>Каждый, кому доступен этот документ, может его скачать.</p>
+            <p>Для документов в форматах картинок (JPG, PNG итд), а также для PDF доступен предпросмотр. Документы в остальных форматах просматривать онлайн нельзя.</p>
           </div>
         </div>
       </div>

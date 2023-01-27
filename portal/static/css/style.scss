@@ -10,14 +10,17 @@
   border: 0.25rem dashed #a5a5c7;
   text-align: center;
   transition: all 0.1s;
+
   &.active {
     background-color: #f0f8ff;
     border-style: solid;
     transition: all 0.1s;
   }
+
   .btn {
     position: relative;
     overflow: hidden;
+
     input[type="file"] {
       position: absolute;
       top: 0;
@@ -26,10 +29,11 @@
       border: solid transparent;
       width: 100%;
       opacity: 0;
-      filter: alpha(opacity= 0);
+      filter: alpha(opacity=0);
       cursor: pointer;
-      &::-webkit-file-upload-button { 
-        cursor:pointer;
+
+      &::-webkit-file-upload-button {
+        cursor: pointer;
       }
     }
   }
@@ -41,6 +45,7 @@
   height: 400px;
   width: 100%;
   background-color: #f0f8ff;
+
   img {
     object-fit: contain;
     width: 100%;
@@ -51,7 +56,7 @@
 
 .result-image {
   overflow: hidden;
-  width: 200px; 
+  width: 200px;
   height: 200px;
   border: 1px solid #0d6efd;
 }
@@ -62,18 +67,22 @@ form .invalid-feedback {
 
 
 .profile-list-card {
+  padding: 10px 0;
   .card-body {
-    padding: 20px;
+    padding: 10px 20px;
   }
+
   img {
-    width: 80px;
-    height: 80px;
+    width: 50px;
+    height: 50px;
   }
+
   a {
     text-decoration: none;
   }
+
   .profile-card {
-    width:65%;
+    width: 65%;
     @media (max-width: 767px) {
       width: 75%;
     }
@@ -81,6 +90,7 @@ form .invalid-feedback {
       width: 100%;
     }
   }
+
   .arrow-block {
     width: 35%;
     @media (max-width: 767px) {
@@ -92,6 +102,7 @@ form .invalid-feedback {
         display: none;
       }
     }
+
     .last-seen {
       display: block;
       text-align: center;
@@ -102,11 +113,13 @@ form .invalid-feedback {
         text-align: right;
       }
     }
+
     a {
       @media (max-width: 767px) {
         display: none !important;
       }
     }
+
     a::before {
       font-size: 40px;
       cursor: pointer;
@@ -129,6 +142,27 @@ form .invalid-feedback {
 
 .doc-perview__image {
   width: 100%;
-    max-width: 350px;
-    height: auto;
+  max-width: 350px;
+  height: auto;
+}
+
+.blog-post {
+  max-width: 900px;
+
+  img {
+    max-width: 100%;
+    @media (max-width: 499px) {
+      width: 100% !important;
+    }
+  }
+}
+
+@media (max-width: 1199px) {
+  .post-preview {
+    max-height: 200px;
+
+    img {
+      height: 100%;
+    }
+  }
 }

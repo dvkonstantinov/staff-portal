@@ -37,13 +37,19 @@ class Document(models.Model):
     is_for_deleting = models.BooleanField(verbose_name='Помечен на удаление',
                                           default=False)
 
-    def __str__(self):
-        return self.title
-
     class Meta:
         verbose_name = 'Документ'
         verbose_name_plural = 'Документы'
         ordering = ['created_at']
+
+    def __str__(self):
+        return self.title
+
+    @staticmethod
+    def get_docs_for_current_user(user):
+        return Document.objects.filter(is_for_deleting=False,
+                                       groups__in=user.groups.all()
+                                       ).distinct()
 
 
 class Tag(models.Model):
@@ -69,15 +75,6 @@ class Category(MPTTModel):
         related_name='child',
         on_delete=models.CASCADE
     )
-
-    # def __str__(self):
-    #     full_path = [self.title]
-    #     k = self.parent
-    #     while k is not None:
-    #         full_path.append(k.title)
-    #         k = k.parent
-    #
-    #     return ' -> '.join(full_path[::-1])
 
     def __str__(self):
         return self.title

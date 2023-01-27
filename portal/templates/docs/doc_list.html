@@ -45,6 +45,7 @@
               </div>
             </div>
             <hr class="m-0 d-none d-xl-block">
+            {% if page_obj %}
             {% for doc in page_obj %}
               <div class="row pb-2 pt-2 d-flex flex-xl-row">
                 <div class="col-12 col-sm-1 id">
@@ -65,17 +66,16 @@
                 </div>
                 <div class="col-12 col-sm-3 status">
                   <span class="d-sm-none">Статус:</span>
-                  <span>
                   {% if not doc.for_signing %}
-                    К ознакомлению
+                    <span class="badge bg-info">К ознакомлению</span>
                   {% else %}
                     {% if doc in request.user.signed_documents.all %}
-                      Подписан
+                      <span class="badge bg-success">Подписан</span>
                     {% else %}
-                      К подписанию
+                      <span class="badge bg-warning">К подписанию
                     {% endif %}
                   {% endif %}
-                </span>
+
                 </div>
               <div class="col-12 d-sm-none">
                 <a  href="{% url 'docs:doc_detail' doc_id=doc.id %}"
@@ -87,6 +87,9 @@
               {% if not forloop.last %}
                 <hr class="m-0">{% endif %}
             {% endfor %}
+              {% else %}
+              <p class="pt-2 text-center">Документы не найдены</p>
+            {% endif %}
           </div>
         </div>
         <div class="col-12">

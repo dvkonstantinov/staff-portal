@@ -1,0 +1,31 @@
+version: '3.3'
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:14.0-alpine
+    restart: always
+    ports:
+    - "5432:5432"
+    volumes:
+      - postgres:/var/lib/postgresql/data/
+    env_file:
+      - ./.env
+  web:
+    container_name: staff_portal
+    image: dvkonstantinov/foodgram-backend:latest
+#    build: ./portal/
+    restart: always
+    ports:
+    - "8001:8001"
+    volumes:
+      - ./django_files/static:/app/static/
+      - ./django_files/media:/app/media/
+    depends_on:
+      - postgres
+    env_file:
+      - ./.env
+
+volumes:
+  static:
+  media:
+  postgres:

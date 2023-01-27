@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from docs.models import Document, Category, Tag
+from docs.models import Category, Document, Tag
 
 
 class DocumentAdmin(admin.ModelAdmin):
@@ -23,4 +23,3 @@ class TagAdmin(admin.ModelAdmin):
 
 admin.site.register(Document, DocumentAdmin)
 admin.site.register(Category, CategoryAdmin)
-admin.site.register(Tag, TagAdmin)

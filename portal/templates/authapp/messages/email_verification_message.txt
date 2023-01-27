@@ -1,7 +1,5 @@
 {% autoescape off %}
-  Hi ,
-  Please click on the link to confirm your registration,
-  {{ user }}
-  {{ token }}
+  Привет!
+  Чтобы подтвердить вашу учетную запись на портале ILA ASPECT, пожалуйста, перейтиде по ссылке ниже:
   {{ protocol }}://{{ domain }}{% url 'authapp:email_verification_done' uidb64=uid token=token%}
 {% endautoescape %}

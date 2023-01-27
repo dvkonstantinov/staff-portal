@@ -1,49 +1,53 @@
 from django.contrib.auth import get_user_model, login, update_session_auth_hash
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.tokens import default_token_generator
-from django.contrib.auth.views import PasswordChangeView, PasswordResetView, \
-    LoginView
-from django.core.mail import EmailMessage
+from django.contrib.auth.views import (LoginView, PasswordChangeView,
+                                       PasswordResetView)
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
-from django.template.loader import render_to_string
 from django.urls import reverse_lazy
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-from django.views.generic import CreateView
+from django.utils.http import urlsafe_base64_decode
 
-from portal.settings import SITE_DOMAIN, SITE_PROTOCOL
-from .forms import UserRegistrationForm, CustomPasswordChangeForm, \
-    CustomPasswordResetForm, UserLoginForm
+from .forms import (CustomPasswordChangeForm, CustomPasswordResetForm,
+                    UserLoginForm, UserRegistrationForm)
+from .utils import account_activation_token, send_verification_email
 
 User = get_user_model()
 
-account_activation_token = default_token_generator
+
+def signup_view(request):
+    if request.method == 'POST':
+        form = UserRegistrationForm(data=request.POST or None)
+        user = User()
+        if form.is_valid():
+            user = form.save()
+        is_success_mail = send_verification_email(user)
+        if is_success_mail:
+            return render(request, 'authapp/email_verification.html',
+                          context={'user_email': user.email})
+        else:
+            form.add_error(None, 'Неудачная отправка Email. '
+                                 'Попробуйте позднее')
+            return render(request, 'authapp/signup.html',
+                          context={'form': form})
+
+    form = UserRegistrationForm(data=request.POST or None)
+    return render(request, 'authapp/signup.html', context={'form': form})
 
 
-class SignUpView(CreateView):
-    form_class = UserRegistrationForm
-    success_url = reverse_lazy('authapp:email_verification')
-    template_name = 'authapp/signup.html'
+def resend_email(request):
+    try:
+        email = request.POST['email']
+    except KeyError:
+        pass
+    try:
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        return JsonResponse({'message': 'error'}, status=404)
 
-    def form_valid(self, form):
-        super(SignUpView, self).form_valid(form)
-        user = User.objects.get(email=form.cleaned_data['email'])
-        mail_subject = 'Activate your blog account.'
-        message = render_to_string(
-            'authapp/messages/email_verification_message.txt', {
-                'user': user,
-                'domain': SITE_DOMAIN,
-                'protocol': SITE_PROTOCOL,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': account_activation_token.make_token(user),
-            })
-        to_email = form.cleaned_data.get('email')
-        email = EmailMessage(
-            mail_subject, message, to=[to_email]
-        )
-        email.send()
-        return HttpResponseRedirect(self.get_success_url())
+    is_success_mail = send_verification_email(user)
+    if is_success_mail:
+        return JsonResponse({'message': 'success'}, status=200)
+    else:
+        return JsonResponse({'message': 'error'}, status=400)
 
 
 def email_verification(request):
@@ -51,13 +55,10 @@ def email_verification(request):
 
 
 def email_verification_done(request, uidb64, token):
-    print(uidb64)
-    print(token)
-    print(request.scheme)
     try:
         uid = urlsafe_base64_decode(uidb64).decode()
         user = User.objects.get(pk=uid)
-    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True
@@ -74,7 +75,6 @@ class CustomLoginView(LoginView):
     template_name = 'authapp/login.html'
 
     def form_valid(self, form):
-
         login(self.request, form.get_user())
         return HttpResponseRedirect(self.get_success_url())
 
@@ -83,6 +83,7 @@ class CustomPasswordResetView(PasswordResetView):
     form_class = CustomPasswordResetForm
     success_url = reverse_lazy('authapp:password_reset_done')
     template_name = 'authapp/password_reset_form.html'
+    email_template_name = "authapp/messages/password_reset_email.txt"
 
 
 class CustomPasswordChangeView(PasswordChangeView):

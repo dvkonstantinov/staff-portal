@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load static %}
+{% load user_filters %}
+{% block title %}{{ post.title }} - просмотр{% endblock %}
+{% block content %}
+
+  <div class="pagetitle">
+    <h1>{{ post.title }}</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'main:home_page' %}">
+          <i class="bi bi-house-door"></i></a></li>
+        <li class="breadcrumb-item"><a href="
+{% url 'posts:post_list' %}">Новости</a></li>
+        <li class="breadcrumb-item active">
+          <span>{{ post.title|truncatewords:4 }}</span></li>
+      </ol>
+    </nav>
+  </div>
+
+  <section class="section">
+    <div class="row">
+      <div class="col-xl-8">
+        <div class="card">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-xl-12">
+                <article class="blog-post">
+                  <h1 class="card-title pb-0">{{ post.title }}</h1>
+                  <p class="card-datetime">
+                    {{ post.created_at|date:'d M Y H:i' }},
+                    <a href="{% url 'users:user_profile' user_id=post.author.id %}"
+                    >{{ post.author.first_name }}
+                      {{ post.author.last_name }}</a></p>
+                  <hr>
+                  {{ post.body|safe }}
+                </article>
+              </div>
+              {% if post.image %}
+                <div class="col-xl-3 post-preview">
+                  <img class="img-fluid" src="{{ post.image.url }}" alt=
+                      "{{ post.title }}">
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-4">
+        <div class="card">
+          <div class="card-body">
+            <h4 class="card-title">Последние новости</h4>
+            <div class="news-card">
+              {% for latest_post in latest_posts|slice:":6" %}
+                {% if latest_post.id != post.id %}
+                <div class="news-card-item d-flex">
+                  <div class="news-card-label">{{ latest_post.created_at|prettydateshort }}</div>
+                  <div>
+                    <h4><a href="{% url 'posts:post_detail' post_id=latest_post.id %}">{{ latest_post.title }}</a></h4>
+                    <p>{{ latest_post.body|striptags|clearnbsp|truncatewords:10 }}</p>
+                  </div>
+                </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+{% block page_scripts %}
+  <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css"
+  />
+  <script type="module"></script>
+  <script src="{% static 'vendor/tinymce/tinymce.min.js' %}"></script>
+  <script>
+
+      document.querySelectorAll('.blog-post img').forEach(function (el) {
+          el.setAttribute('data-fancybox', 'gallery')
+          el.setAttribute('role', 'button')
+          el.classList.add('img-fluid')
+      })
+  </script>
+{% endblock %}

@@ -2,10 +2,48 @@
 {% load static %}
 {% block title %}Подтверждение Email{% endblock %}
 {% block page_title %}Подтведите Email{% endblock %}
-{#{% block page_descr %}{% endblock %}#}
 {% block unreg_content %}
   <div class="col-12">
-    <p>На вашу почту было отправлено письмо со ссылкой. Перейдите по этой
-      ссылке для подтверждения вашего Email-адреса.</p>
+  <p>На вашу почту {{ user_email }} было отправлено письмо со ссылкой. Перейдите по ней для подтверждения вашего Email-адреса. Не забудьте проверить папку "Спам", оно могло попасть туда</p>
+  <p>Если письмо не пришло, нажмите на кнопку чтобы отправить его повторно</p>
+  <div class="col-12">
+    <button class="btn btn-outline-primary w-100" id="btnResend" data-email="{{ user_email }}">Отправить повторно</button>
   </div>
+{% endblock %}
+{% block page_scripts %}
+  <script>
+  const button = document.querySelector('#btnResend')
+  button.addEventListener('click', CategoryRemoveAjax)
+
+      function CategoryRemoveAjax(e) {
+          e.preventDefault();
+          const button = document.querySelector('#btnResend')
+          const userEmail = button.getAttribute('data-email')
+          let data = new FormData();
+          data.append('csrfmiddlewaretoken', csrftoken)
+          data.append('email', userEmail)
+          $.ajax({
+              data: data,
+              type: 'post',
+              url: '{% url 'authapp:resend_email' %}',
+              cache: false,
+              processData: false,
+              contentType: false,
+              success: function () {
+                  button.textContent = 'Отправлено';
+                  button.classList.remove('btn-outline-primary');
+                  button.classList.add('btn-success');
+                  button.setAttribute('disabled', '');
+                  showToast('text-bg-success', 'Успешно', 'Письмо отправлено повторно');
+              },
+              error: function () {
+                  button.textContent = 'Ошибка';
+                  button.classList.remove('btn-outline-primary');
+                  button.classList.add('btn-danger');
+                  button.setAttribute('disabled', '');
+                  showToast('text-bg-danger', 'Неудачно', 'Произошла ошибка. Попробуйте позднее или обратитесь к администратору');
+              },
+          });
+      }
+  </script>
 {% endblock %}

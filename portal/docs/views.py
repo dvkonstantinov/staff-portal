@@ -1,10 +1,10 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import ProtectedError
-from django.http import JsonResponse, HttpResponseNotFound, \
-    HttpResponseForbidden
-from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponseForbidden, JsonResponse
+from django.shortcuts import get_object_or_404, render
 from django.template.defaultfilters import upper
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.http import require_http_methods
@@ -13,13 +13,12 @@ from django_filters.views import FilterView
 
 from core.decorators import adminuser_required
 from docs.filters import DocFilter
-from docs.forms import DocSearchForm, AdminDocSearchForm, AdminDocEditForm, \
-    AdminDocCreateForm, AdminCategoryForm
-from docs.models import Document, Category
-from portal.settings import SITE_FULL_PATH
+from docs.forms import (AdminCategoryForm, AdminDocCreateForm,
+                        AdminDocEditForm, AdminDocSearchForm, DocSearchForm)
+from docs.models import Category, Document
 from users.models import Group
 
-DOCS_PER_PAGE = 10
+DOCS_PER_PAGE = 15
 
 User = get_user_model()
 
@@ -83,9 +82,9 @@ def doc_detail(request, doc_id):
     extention = upper(doc.file.url.split('.')[-1])
     context = {'doc': doc,
                'extention': extention,
-               'site_path': SITE_FULL_PATH}
+               'domain': settings.SITE_DOMAIN,
+               'protocol': settings.SITE_PROTOCOL}
     return render(request, 'docs/doc_detail.html', context=context)
-
 
 
 @login_required
@@ -130,10 +129,13 @@ def doc_edit(request, doc_id):
                                 files=request.FILES or None,
                                 instance=doc_instance)
         if form.is_valid():
-            document = form.save()
-            for group in form.data.getlist('groups'):
-                group = get_object_or_404(Group, title=group)
-                document.groups.add(group.id)
+            document = form.save(commit=False)
+            document.author = request.user
+            document.save()
+            doc_instance.groups.clear()
+            groups = Group.objects.filter(
+                title__in=form.data.getlist('groups'))
+            doc_instance.groups.set(groups)
             data = {'message': 'success editing'}
             return JsonResponse(data, status=200)
         else:
@@ -161,17 +163,10 @@ def doc_remove(request, doc_id):
     return JsonResponse(data, status=200)
 
 
-class CategoryListView(LoginRequiredMixin, ListView):
-    paginate_by = 10
-    template_name = 'docs/category_list.html'
-
-    def get_queryset(self):
-        return Category.objects.all()
-
-
-class AdminCategoryListView(CategoryListView):
+class AdminCategoryListView(ListView):
     paginate_by = 10
     template_name = 'docs/admin_category_list.html'
+    queryset = Category.objects.all()
 
 
 @adminuser_required
@@ -183,7 +178,8 @@ def doc_signers(request, doc_id):
                                          is_active=True,
                                          verified=True,
                                          groups__in=document.groups.all()
-                                         ).exclude(id__in=signed_users).distinct()
+                                         ).exclude(
+        id__in=signed_users).distinct()
     signed_users = list(signed_users.values('id', 'email', 'first_name',
                                             'last_name'))
     unsigned_users = list(unsigned_users.values('id', 'email', 'first_name',
@@ -211,10 +207,6 @@ def category_create(request):
     }
     return render(request, 'docs/forms/admin_category_form.html',
                   context=context)
-
-
-def category_detail(request, slug):
-    pass
 
 
 @adminuser_required

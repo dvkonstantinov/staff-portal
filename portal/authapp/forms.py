@@ -1,10 +1,16 @@
 from django import forms
-from django.contrib.auth import get_user_model, password_validation, \
-    authenticate
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, \
-    PasswordChangeForm, PasswordResetForm
+from django.conf import settings
+from django.contrib.auth import (authenticate, get_user_model,
+                                 password_validation)
+from django.contrib.auth.forms import (AuthenticationForm, PasswordChangeForm,
+                                       PasswordResetForm, UserCreationForm)
+from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ValidationError
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 from django.utils.translation import gettext_lazy as _
+
+from authapp.utils import check_email_pattern
 
 User = get_user_model()
 
@@ -29,12 +35,13 @@ class UserRegistrationForm(UserCreationForm):
                              widget=forms.TextInput(
                                  attrs={'class': 'form-control',
                                         'name': 'email'}))
-    password1 = forms.CharField(max_length=30, required=True, label='Пароль',
-                                widget=forms.TextInput(
-                                    attrs={'class': 'form-control',
-                                           'name': "password1",
-                                           'type': "password"}),
-                                help_text=password_validation.password_validators_help_text_html())
+    password1 = forms.CharField(
+        max_length=30, required=True, label='Пароль',
+        widget=forms.TextInput(
+            attrs={'class': 'form-control',
+                   'name': "password1",
+                   'type': "password"}),
+        help_text=password_validation.password_validators_help_text_html())
     password2 = forms.CharField(max_length=30, required=True,
                                 label='Подтверждение пароля',
                                 widget=forms.TextInput(
@@ -42,8 +49,17 @@ class UserRegistrationForm(UserCreationForm):
                                            'name': "password2",
                                            'type': "password"}))
 
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if not check_email_pattern(email):
+            raise ValidationError("Может быть зарегистрирован только email "
+                                  "@ilaaspect.com")
+        if User.objects.filter(email=email).exists():
+            raise ValidationError("Такой email уже зарегистрирован")
+        return email
+
     def save(self, commit=True):
-        username = self.cleaned_data['email'].split('@')[0].replace('.', '-')
+        username = self.cleaned_data['email'].split('@')[0]
         user = super().save(commit=False)
         user.username = username
         user.set_password(self.cleaned_data["password1"])
@@ -129,3 +145,40 @@ class CustomPasswordResetForm(PasswordResetForm):
                              widget=forms.TextInput(
                                  attrs={'class': 'form-control',
                                         'name': 'email'}))
+
+    def save(
+        self,
+        domain_override=None,
+        subject_template_name="registration/password_reset_subject.txt",
+        email_template_name="registration/password_reset_email.html",
+        use_https=False,
+        token_generator=default_token_generator,
+        from_email=None,
+        request=None,
+        html_email_template_name=None,
+        extra_email_context=None,
+    ):
+        email = self.cleaned_data["email"]
+        site_name = settings.SITE_DOMAIN
+        domain = settings.SITE_DOMAIN
+        email_field_name = User.get_email_field_name()
+        for user in self.get_users(email):
+            user_email = getattr(user, email_field_name)
+            context = {
+                "email": user_email,
+                "domain": domain,
+                "site_name": site_name,
+                "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                "user": user,
+                "token": token_generator.make_token(user),
+                "protocol": settings.SITE_PROTOCOL,
+                **(extra_email_context or {}),
+            }
+            self.send_mail(
+                subject_template_name,
+                email_template_name,
+                context,
+                from_email,
+                user_email,
+                html_email_template_name=html_email_template_name,
+            )

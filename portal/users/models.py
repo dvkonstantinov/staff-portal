@@ -1,4 +1,4 @@
-from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
+from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
@@ -97,28 +97,55 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
+    @staticmethod
+    def get_active_users():
+        return User.objects.filter(is_active=True)
+
+    @staticmethod
+    def get_active_users_with_profile():
+        return User.objects.select_related('profile').filter(is_active=True)
+
 
 class Profile(models.Model):
-    user = models.OneToOneField(AUTH_USER_MODEL, on_delete=models.CASCADE,
-                                verbose_name='Пользователь',
-                                related_name='profile')
-    photo = models.ImageField(upload_to='profile_photos/full/',
-                              default='profile_photos/default/default-avatar.jpg',
-                              verbose_name='Фото')
-    thumbnail = models.ImageField(upload_to='profile_photos/thumbs/',
-                                  default='profile_photos/default/default-avatar.jpg',
-                                  verbose_name='Миниатюра')
-    job = models.CharField(max_length=300, verbose_name='Должность',
-                           blank=True, null=True)
-    about = models.TextField(verbose_name='Обо мне', blank=True, null=True)
-    personal_email = models.EmailField(verbose_name='Личный email', blank=True,
-                                       null=True)
-    birthday = models.DateField(verbose_name='Дата рождения', blank=True,
-                                null=True)
-    phone = models.CharField(max_length=50, verbose_name='Телефон', blank=True,
-                             null=True)
-    telegram = models.CharField(max_length=150, verbose_name='Телеграм',
-                                blank=True, null=True)
+    user = models.OneToOneField(
+        AUTH_USER_MODEL, on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+        related_name='profile')
+    photo = models.ImageField(
+        upload_to='profile_photos/full/',
+        default='profile_photos/default/default-avatar.jpg',
+        verbose_name='Фото')
+    thumbnail = models.ImageField(
+        upload_to='profile_photos/thumbs/',
+        default='profile_photos/default/default-avatar.jpg',
+        verbose_name='Миниатюра')
+    job = models.CharField(
+        max_length=300,
+        verbose_name='Должность',
+        blank=True,
+        null=True)
+    about = models.TextField(
+        verbose_name='Обо мне',
+        blank=True,
+        null=True)
+    personal_email = models.EmailField(
+        verbose_name='Личный email',
+        blank=True,
+        null=True)
+    birthday = models.DateField(
+        verbose_name='Дата рождения',
+        blank=True,
+        null=True)
+    phone = models.CharField(
+        max_length=50,
+        verbose_name='Телефон',
+        blank=True,
+        null=True)
+    telegram = models.CharField(
+        max_length=150,
+        verbose_name='Телеграм',
+        blank=True,
+        null=True)
 
     @receiver(post_save, sender=User)
     def create_user_profile(sender, instance, created, **kwargs):
@@ -141,16 +168,6 @@ class Profile(models.Model):
 class Group(models.Model):
     title = models.CharField(max_length=200, verbose_name='Название')
     slug = models.SlugField(max_length=100, unique=True)
-
-    # @receiver(post_save, sender=User)
-    # def create_user_group(sender, instance, created, **kwargs):
-    #     if created:
-    #         group, _ = Group.objects.get_or_create(
-    #             title='Без группы',
-    #             slug='none'
-    #         )
-    #         instance.group = group
-    #         instance.save()
 
     def __str__(self):
         return self.title

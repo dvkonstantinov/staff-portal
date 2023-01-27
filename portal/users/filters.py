@@ -6,19 +6,21 @@ User = get_user_model()
 
 
 class UserFilter(django_filters.FilterSet):
-    name = django_filters.CharFilter(method='fio_search')
+    name = django_filters.CharFilter(method='search_name')
     registration_date = django_filters.CharFilter(method='register_sort')
-    group = django_filters.CharFilter(lookup_expr='exact')
+    group = django_filters.CharFilter(method='filter_group')
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'registration_date', 'group']
+        fields = ['first_name', 'last_name', 'registration_date', 'group',
+                  'email']
 
-    def fio_search(self, queryset, name, value):
+    def search_name(self, queryset, name, value):
         for term in value.split(' '):
-            queryset = queryset.filter(Q(first_name__icontains=term) |
-                                       Q(last_name__icontains=term) |
-                                       Q(patronymic__icontains=term))
+            queryset = queryset.filter(Q(first_name__icontains=term)
+                                       | Q(last_name__icontains=term)
+                                       | Q(patronymic__icontains=term)
+                                       | Q(email__icontains=term))
         return queryset
 
     def register_sort(self, queryset, name, value):
@@ -30,22 +32,34 @@ class UserFilter(django_filters.FilterSet):
             return queryset
         return queryset
 
+    def filter_group(self, queryset, name, value):
+        print(queryset)
+        queryset = queryset.filter(groups__slug=value)
+        print(queryset)
+        return queryset
+
 
 class AdminUserFilter(UserFilter):
-    email = django_filters.CharFilter(method='fio_search')
     activity = django_filters.CharFilter(method='activity_sort')
     group = django_filters.CharFilter(method='group_filter')
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name']
+        fields = ['first_name', 'last_name', 'email']
 
     def activity_sort(self, queryset, name, value):
         if value == 'new':
-            queryset = queryset.order_by('last_activity')
+            queryset = queryset.order_by('-last_activity')
             return queryset
+        queryset = queryset.order_by('last_activity')
         return queryset
 
     def group_filter(self, queryset, name, value):
-        queryset = queryset.filter(groups__title=value)
-        return queryset
+        if value == 'none':
+            queryset = queryset.filter(groups=None)
+            return queryset
+        elif value == 'all':
+            return queryset
+        else:
+            queryset = queryset.filter(groups__slug=value)
+            return queryset
