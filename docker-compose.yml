@@ -7,12 +7,12 @@ services:
     ports:
     - "5432:5432"
     volumes:
-      - postgres:/var/lib/postgresql/data/
+      - ./db:/var/lib/postgresql/data/
     env_file:
       - ./.env
   web:
-    container_name: staff_portal
-    image: dvkonstantinov/foodgram-backend:latest
+    container_name: portal
+    image: dvkonstantinov/portal-staff:latest
 #    build: ./portal/
     restart: always
     ports:
@@ -28,4 +28,4 @@ services:
 volumes:
   static:
   media:
-  postgres:
+  db:

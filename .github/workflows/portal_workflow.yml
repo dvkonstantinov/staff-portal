@@ -38,8 +38,8 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo docker-compose stop
-            sudo docker-compose rm staff_portal
+            docker-compose stop
+            docker-compose rm staff_portal
             cd ~
             mkdir portal
             cd portal/
@@ -61,7 +61,7 @@ jobs:
             echo EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }} >> .env
             echo EMAIL_USE_TLS=${{ secrets.EMAIL_USE_TLS }} >> .env
             echo EMAIL_USE_SSL=${{ secrets.EMAIL_USE_SSL }} >> .env
-            sudo docker-compose up -d
+            docker-compose up -d
   send_message:
     runs-on: ubuntu-latest
     needs: deploy
