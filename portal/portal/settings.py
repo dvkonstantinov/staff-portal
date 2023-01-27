@@ -16,6 +16,7 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(' ')
 SITE_ID = 1
 SITE_DOMAIN = os.getenv('SITE_DOMAIN')
 SITE_PROTOCOL = os.getenv('SITE_PROTOCOL')
+CSRF_TRUSTED_ORIGINS = [f'{SITE_PROTOCOL}://{SITE_DOMAIN}']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
