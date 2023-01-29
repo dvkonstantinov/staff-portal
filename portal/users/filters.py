@@ -33,9 +33,7 @@ class UserFilter(django_filters.FilterSet):
         return queryset
 
     def filter_group(self, queryset, name, value):
-        print(queryset)
         queryset = queryset.filter(groups__slug=value)
-        print(queryset)
         return queryset
 
 

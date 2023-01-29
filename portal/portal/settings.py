@@ -17,6 +17,7 @@ SITE_ID = 1
 SITE_DOMAIN = os.getenv('SITE_DOMAIN')
 SITE_PROTOCOL = os.getenv('SITE_PROTOCOL')
 CSRF_TRUSTED_ORIGINS = [f'{SITE_PROTOCOL}://{SITE_DOMAIN}']
+SENDFILE_ROOT = os.getenv('SENDFILE_ROOT')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -37,7 +38,6 @@ INSTALLED_APPS = [
     'main',
     'docs',
     'posts',
-
 ]
 
 MIDDLEWARE = [
@@ -119,11 +119,11 @@ USE_I18N = True
 USE_TZ = True
 
 # Static and media
-STATIC_URL = 'static/'
-if DEBUG:
-    STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-else:
-    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'portal/staticfiles')
+]
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -137,12 +137,12 @@ if DEBUG:
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-EMAIL_HOST = os.getenv('EMAIL_HOST')
-EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 465
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')
-EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL')
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
 
 
 LOGIN_REDIRECT_URL = '/'
@@ -151,14 +151,8 @@ LOGIN_URL = '/auth/login/'
 # открытие pdf в iframe
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 
-# django_sendfile отправка файлов
-if DEBUG:
-    SENDFILE_BACKEND = "django_sendfile.backends.simple"
-    SENDFILE_ROOT = MEDIA_ROOT
-else:
-    SENDFILE_BACKEND = "django_sendfile.backends.nginx"
-    SENDFILE_ROOT = '/home/dm/staff-portal/'
-SENDFILE_URL = '/media'
+# django_sendfile и отправка файлов
+SENDFILE_BACKEND = "django_sendfile.backends.simple"
 
 # debug toolbar
 INTERNAL_IPS = [

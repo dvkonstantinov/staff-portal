@@ -31,7 +31,6 @@ class DocListView(LoginRequiredMixin, FilterView):
 
     def get_queryset(self):
         user_groups = self.request.user.groups.all()
-        print(user_groups)
         allowed_docs = Document.objects.filter(
             groups__in=user_groups,
             is_for_deleting=False).distinct()

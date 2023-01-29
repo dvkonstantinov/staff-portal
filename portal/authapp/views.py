@@ -16,18 +16,17 @@ User = get_user_model()
 def signup_view(request):
     if request.method == 'POST':
         form = UserRegistrationForm(data=request.POST or None)
-        user = User()
         if form.is_valid():
             user = form.save()
-        is_success_mail = send_verification_email(user)
-        if is_success_mail:
-            return render(request, 'authapp/email_verification.html',
-                          context={'user_email': user.email})
-        else:
-            form.add_error(None, 'Неудачная отправка Email. '
-                                 'Попробуйте позднее')
-            return render(request, 'authapp/signup.html',
-                          context={'form': form})
+            is_success_mail = send_verification_email(user)
+            if is_success_mail:
+                return render(request, 'authapp/email_verification.html',
+                              context={'user_email': user.email})
+            else:
+                form.add_error(None, 'Неудачная отправка Email. '
+                                     'Попробуйте позднее')
+                return render(request, 'authapp/signup.html',
+                              context={'form': form})
 
     form = UserRegistrationForm(data=request.POST or None)
     return render(request, 'authapp/signup.html', context={'form': form})

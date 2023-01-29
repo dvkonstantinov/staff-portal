@@ -103,7 +103,6 @@ class UserLoginForm(AuthenticationForm):
             self.user_cache = authenticate(
                 self.request, username=username, password=password
             )
-            print(self.user_cache)
             if self.user_cache is None:
                 raise self.get_invalid_login_error()
             else:
@@ -146,6 +145,13 @@ class CustomPasswordResetForm(PasswordResetForm):
                                  attrs={'class': 'form-control',
                                         'name': 'email'}))
 
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if not check_email_pattern(email):
+            raise ValidationError("Такой email не может быть зарегистрирован")
+        if not User.objects.filter(email=email).exists():
+            raise ValidationError('Такой email не зарегистрирован')
+
     def save(
         self,
         domain_override=None,
@@ -178,7 +184,7 @@ class CustomPasswordResetForm(PasswordResetForm):
                 subject_template_name,
                 email_template_name,
                 context,
-                from_email,
-                user_email,
+                from_email=settings.EMAIL_HOST_USER,
+                to_email=user_email,
                 html_email_template_name=html_email_template_name,
             )

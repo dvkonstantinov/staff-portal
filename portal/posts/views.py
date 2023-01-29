@@ -79,7 +79,6 @@ def tinymce_upload_images(request):
     timestr = time.strftime("%Y%m%d-%H%M%S")
     path = default_storage.save(f'post_images/image{timestr}.{image_ext}',
                                 ContentFile(image.read()))
-    print(settings.MEDIA_URL + path)
     data = {'location': settings.MEDIA_URL + path}
     return JsonResponse(data, status=200)
 
@@ -91,7 +90,6 @@ def post_create(request):
                             files=request.FILES or None)
         if form.is_valid():
             data = {'message': 'success create'}
-            print(form.data)
             post = form.save(commit=False)
             post.author = request.user
             form.save()

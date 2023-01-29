@@ -10,13 +10,13 @@ services:
       - ./db:/var/lib/postgresql/data/
     env_file:
       - ./.env
-  web:
+  portal:
     container_name: portal
-    image: dvkonstantinov/portal-staff:latest
-#    build: ./portal/
+    image: dvkonstantinov/portal-staff:v1
     restart: always
     ports:
     - "8001:8001"
+    - "465:465"
     volumes:
       - ./django_files/static:/app/static/
       - ./django_files/media:/app/media/
