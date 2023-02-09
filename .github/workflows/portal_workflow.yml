@@ -42,7 +42,6 @@ jobs:
             mkdir portal
             cd portal/
             docker-compose stop
-            docker image rm -f ${{ secrets.DOCKER_USERNAME }}/portal-staff:v1
             rm .env
             touch .env
             echo SITE_DOMAIN=${{ secrets.SITE_DOMAIN }} >> .env
